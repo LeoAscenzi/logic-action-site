@@ -1,0 +1,20 @@
+{
+  "home": {
+    "title": "Home ba"
+  },
+  "about": {
+    "title": "About ba"
+  },
+  "navbar": {
+    "mission": "",
+    "our-team": "",
+    "programs": "",
+    "contact": ""
+  },
+  "footer": {
+    "address": "",
+    "phone": "",
+    "email": "",
+    "wechat": ""
+  }
+}

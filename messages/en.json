@@ -1,0 +1,27 @@
+{
+  "home": {
+    "title": "Home Page",
+    "about-blurb": "We do more than teaching - we curate an elite team tailored to your academic goals, from test-prep, school course support, extracurriculars strategy, to college applications. A roadmap customized just for you and an elite team to push you to execute it. Our team is composed of professionals who have walked the path themselves; graduates of prestigious colleges. We share more than knowledge, and also our network and resources, students and alumni, professors, and coaches from Ivy Leagues. Join our community and be connected to people who will help you.",
+    "sat-card":{
+      "title": "SAT Program",
+      "desc": "Comprehensive SAT prep covering Reading, Writing, and Math with full-length practice tests and personalized score improvement plans."
+    },
+    "ap-card-desc": "Expert tutoring for 20+ AP subjects including Calculus, Chemistry, US History, and English Literature to help you earn college credit.",
+    "ssat-card-desc": "Comprehensive SSAT prep covering Reading, Writing, and Math with full-length practice tests and personalized score improvement plans."
+  },
+  "about": {
+    "title": "About Page"
+  },
+  "navbar": {
+    "mission": "Mission",
+    "our-team": "Team",
+    "programs": "Programs",
+    "contact": "Contact"
+  },
+  "footer": {
+    "address": "123 4th St, Placeside, ST 12345",
+    "phone": "(123) 456-7890",
+    "email": "somepeople@mail.com",
+    "wechat": "ivybridgesociety"
+  }
+}
