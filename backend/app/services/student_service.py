@@ -13,6 +13,12 @@ class StudentService(BaseService):
     def __init__(self, db: AsyncSession = Depends(get_db)):
         super().__init__(db)
 
+    async def get_all_students(self) -> list[Student]:
+        result = await self.db.execute(
+            select(Student).where(Student.is_deleted == False)  # noqa: E712
+        )
+        return list(result.scalars().all())
+
     async def create_student(self, body: StudentCreate) -> Student:            
         student = Student(**body.model_dump())
         self.db.add(student)

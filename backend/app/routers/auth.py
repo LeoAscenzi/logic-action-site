@@ -14,7 +14,8 @@ from app.core.security import (
 from app.core.security import hash_password
 from app.db.session import get_db
 from app.models.models import RefreshToken, User, UserRole
-from app.schemas.schemas import LoginRequest, ParentRegister, TokenResponse
+from app.routers.deps import get_current_user
+from app.schemas.schemas import LoginRequest, ParentRegister, TokenResponse, UserOut
 
 router = APIRouter(tags=["auth"])
 
@@ -30,6 +31,11 @@ def _set_refresh_cookie(response: Response, token: str) -> None:
         samesite="lax",
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
     )
+
+
+@router.get("/me", response_model=UserOut)
+async def get_me(user: User = Depends(get_current_user)):
+    return user
 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)

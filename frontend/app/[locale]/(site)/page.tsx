@@ -1,8 +1,8 @@
 import {useTranslations} from "next-intl";
-import Section from "../components/section";
-import Button from "../components/button";
-import CourseCard from "../components/cards/courseCard";
-import { CourseCardType, getCourseCards } from "../lib/getCourseCards";
+import Section from "@/app/components/section";
+import Button from "@/app/components/button";
+import CourseCard from "@/app/components/cards/courseCard";
+import { CourseCardType, getCourseCards } from "@/app/lib/getCourseCards";
 
 export default async function Home({params} : {params: Promise<{locale: string}>}) {
   const { locale } = await params;
@@ -19,7 +19,7 @@ export default async function Home({params} : {params: Promise<{locale: string}>
                 {/* <Button className="p-4 !font-extrabold cursor-pointer hover:bg-white hover:text-[#D4AF37] border-2 hover:border-[#D4AF37]">Book a Free Consultation</Button> */}
             </div>
         </Section>
-        <Section variant="alt" className="!bg-[#EEE8DA]">
+        <Section variant="alt">
           <div className="text-center max-w-[70%] lg:max-w-[70%] xl:max-w-[60%] mx-auto py-8">
             <div className="pb-4">
               <div className="emphasis-text gold-text pb-1 !text-lg">Who We Are</div>

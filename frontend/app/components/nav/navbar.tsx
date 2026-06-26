@@ -1,15 +1,17 @@
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 import Navlink from "./navlink";
 
-export default function Navbar(){
+export default function Navbar() {
     const t = useTranslations("navbar");
     return (
-        <div className="grid grid-cols-4">
-            <Navlink url="/mission" text={t('mission')}/>
-            <Navlink url="/programs" text={t('programs')}/>
-            <Navlink url="/faq" text={t('faq')}/>
-            <Navlink url="/contact" text={t('contact')}/>
+        <div className="flex items-center gap-x-3">
+            <Navlink url="/"            text={t("home")} />
+            <Navlink url="/programs"   text={t("programs")} />
+            <Navlink url="/mentors"    text={t("mentors")} />
+            <Navlink url="/community"  text={t("community")} />
+            <Navlink url="/events"     text={t("events")} />
+            <Navlink url="/get-started" text={t("getStarted")} />
+            <Navlink url="/contact"    text={t("contact")} />
         </div>
-    )
+    );
 }

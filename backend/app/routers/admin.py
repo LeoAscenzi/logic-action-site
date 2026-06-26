@@ -93,6 +93,22 @@ async def assign_student(
     return await svc.assign_parent(student_id, body.parent_id)
 
 
+@router.get("/students", response_model=list[StudentOut])
+async def list_students(
+    _: User = Depends(require_admin),
+    svc: StudentService = Depends(StudentService),
+):
+    return await svc.get_all_students()
+
+
+@router.get("/classes", response_model=list[ClassOut])
+async def list_classes(
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    return await svc.get_all_classes()
+
+
 @router.post("/create-class", response_model=ClassOut, status_code=status.HTTP_201_CREATED)
 async def create_class(
     body: ClassCreate,

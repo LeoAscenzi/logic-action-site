@@ -1,5 +1,5 @@
-import Button from "../../components/button";
-import Section from "../../components/section";
+import Button from "@/app/components/button";
+import Section from "@/app/components/section";
 
 export default function Mission(){
     return (

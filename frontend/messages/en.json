@@ -9,10 +9,13 @@
     "title": "FAQ Page"
   },
   "navbar": {
-    "mission": "Mission",
-    "faq": "FAQ",
+    "home": "Home",
     "programs": "Programs",
-    "contact": "Contact"
+    "mentors": "Mentors",
+    "community": "Community",
+    "events": "Events",
+    "getStarted": "Get Started",
+    "contact": "Contact Us"
   },
   "footer": {
     "address": "123 4th St, Placeside, ST 12345",

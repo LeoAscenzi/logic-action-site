@@ -7,7 +7,7 @@ export default function Footer(){
     const t = useTranslations('footer');
 
     return (
-        <Section>
+        <Section variant="navy">
             <div className="grid grid-cols-4 h-full">
                 <div className="grid justify-center col-start-1 col-span-2 py-8 px-8">
                     <img src="/logo-dark-text-right.png" className="max-h-[124px]"/>

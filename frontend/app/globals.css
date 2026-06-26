@@ -1,68 +1,116 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F5F5F5;
-  --foreground: #0D0F14;
+  /* Brand palette */
+  --navy:       #0d1120;
+  --navy-mid:   #151929;
+  --navy-soft:  #1e2336;
+  --gold:       #c9a84c;
+  --gold-light: #e2c97e;
+  --cream:      #f5f0e8;
+  --cream-dim:  #d4c9b0;
+  --ink:        #14182a;
+  --ink-soft:   #5b6072;
+  --line:       #e4ddd0;
+  --line-dark:  #2c3148;
+  --white:      #ffffff;
+
+  --radius:    14px;
+  --radius-sm: 9px;
+  --shadow:    0 18px 50px -24px rgba(13, 17, 32, 0.45);
+  --shadow-sm: 0 8px 24px -16px rgba(13, 17, 32, 0.4);
+  --nav-h:     72px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-inter: var(--font-inter);
-  --font-playfair: var(--font-playfair);
+  --color-navy:       var(--navy);
+  --color-navy-mid:   var(--navy-mid);
+  --color-navy-soft:  var(--navy-soft);
+  --color-gold:       var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-cream:      var(--cream);
+  --color-cream-dim:  var(--cream-dim);
+  --color-ink:        var(--ink);
+  --color-ink-soft:   var(--ink-soft);
+  --color-line:       var(--line);
+  --color-line-dark:  var(--line-dark);
+  --font-sans:        var(--font-geist-sans);
+  --font-mono:        var(--font-geist-mono);
+  --font-inter:       var(--font-inter);
+  --font-playfair:    var(--font-playfair);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0D0F14;
-    --foreground: #F5F5F5;
-  }
-}
-
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--navy);
+  color: var(--cream);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
 }
 
-.gold-text {
-  color: #D4AF37;
+/* ── Section variants ────────────────────────── */
+[data-section="navy"]     { background: var(--navy);     color: var(--cream); }
+[data-section="navy-mid"] { background: var(--navy-mid); color: var(--cream); }
+[data-section="cream"]    { background: var(--cream);    color: var(--ink);   }
+[data-section="white"]    { background: var(--white);    color: var(--ink);   }
+
+[data-section="navy"] h1,
+[data-section="navy"] h2,
+[data-section="navy"] h3,
+[data-section="navy-mid"] h1,
+[data-section="navy-mid"] h2,
+[data-section="navy-mid"] h3 { color: var(--white); }
+
+[data-section="cream"] h1,
+[data-section="cream"] h2,
+[data-section="cream"] h3,
+[data-section="white"] h1,
+[data-section="white"] h2,
+[data-section="white"] h3  { color: var(--ink); }
+
+[data-section="navy"] .lead,
+[data-section="navy-mid"] .lead { color: var(--cream-dim); }
+[data-section="cream"] .lead,
+[data-section="white"] .lead    { color: var(--ink-soft);  }
+
+/* ── Utilities ───────────────────────────────── */
+/* Eyebrow: small all-caps tag above headings */
+.eyebrow {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 14px;
 }
 
-.gray-text{
-  color: rgba(26,26,46,0.5);
-}
+.gold-text       { color: var(--gold); }
+.gold-text-light { color: var(--gold-light); }
 
 .emphasis-text {
-  font: var(--font-inter);
-  letter-spacing: 0.2em;
-  font-size: 12px;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  letter-spacing: 0.18em;
+  font-size: 0.75rem;
   text-transform: uppercase;
+  font-weight: 600;
 }
 
 input {
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 2px;
 }
 
-a {
-  color: white;
-}
+a { color: inherit; text-decoration: none; }
 
-a:hover{
-  color:#D4AF37;
+a.nav-link {
+  color: var(--cream-dim);
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
 }
-
-ul{
-  list-style: disc inside;
-  color:black;
-}
-li::marker{
-  color:#D4AF37;
-}
+a.nav-link:hover  { color: var(--white); background: rgba(255, 255, 255, 0.08); }
+a.nav-link.active { color: var(--gold); }
+ul          { list-style: disc inside; }
+li::marker  { color: var(--gold); }

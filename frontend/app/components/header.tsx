@@ -1,22 +1,23 @@
 import Link from "next/link";
 import Navbar from "./nav/navbar";
-import LanguageToggle from "./languageToggle";
+import AuthHeaderButton from "./auth/AuthHeaderButton";
 
-export default function Header(){
+export default function Header() {
     return (
-    <div className="grid grid-cols-8 min-h-16 border-b-2 gold-text p-2">
-        <Link 
-            className="col-start-2 col-span-1 text-center content-center"
-            href="/"
-        >
-            <img src="/logo-dark-text-right.png" className="max-h-[128px]"/>
-        </Link>
-        <div className="col-start-5 col-span-3 text-center content-center">
-            <Navbar/>
+        <div className="sticky top-0 z-50 bg-[#1e2336]/80 backdrop-blur-md border-b border-[#2c3148]">
+            <div className="grid grid-cols-[1fr_50vw_1fr] items-center h-[72px] px-8">
+                <div className="flex justify-center">
+                    <Link href="/">
+                        <img src="/logo-dark-text-right.png" className="max-h-[48px]" />
+                    </Link>
+                </div>
+                <div className="flex justify-center">
+                    <Navbar />
+                </div>
+                <div className="flex justify-center">
+                    <AuthHeaderButton />
+                </div>
+            </div>
         </div>
-        <div className="text-center content-center">
-            {/* <LanguageToggle/> TODO REENABLE LATER*/} 
-        </div>
-    </div>
-    )
+    );
 }
