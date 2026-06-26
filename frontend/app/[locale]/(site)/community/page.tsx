@@ -27,6 +27,8 @@ export default function CommunityPage() {
                             "Premium test prep resources",
                             "Mentor Q&As",
                             "Parent discussions",
+                            "Early access to IRL events",
+                            "Curated college admissions insights"
                         ]}
                     />
                     <CommunityLoginCard />
