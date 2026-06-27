@@ -13,7 +13,7 @@ export default function Contact() {
 
 			<Section variant="cream">
 				<div className="max-w-6xl mx-auto py-20 px-8">
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
 
 						{/* Left: contact info */}
 						<div className="flex flex-col gap-10 pt-2">

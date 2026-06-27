@@ -51,7 +51,7 @@ export default function ContactForm() {
 	}
 
 	return (
-		<div className="bg-white ml-[-100px] min-w-2xl rounded-2xl p-8 shadow-[var(--shadow-sm)]">
+		<div className="bg-white lg:ml-[-100px] lg:min-w-2xl rounded-2xl p-8 shadow-[var(--shadow-sm)]">
 			<h2 className="font-playfair text-2xl font-semibold text-[var(--navy)] mb-6">
 				Send Us a Message
 			</h2>
