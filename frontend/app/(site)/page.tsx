@@ -12,13 +12,15 @@ const stats = [
 export default async function Home() {
 	return (
 		<div>
-
 			{/* ── Hero ─────────────────────────────────── */}
 			<Section variant="navy">
 				<div className="flex flex-col items-center text-center pt-18 pb-10 px-8">
-
-					<span className="eyebrow tracking-[0.22em]">
-						NYC Test Prep&nbsp;&nbsp;·&nbsp;&nbsp;College Advisory&nbsp;&nbsp;·&nbsp;&nbsp;Academic Support
+					<span className="eyebrow tracking-[0.22em] w-full !flex flex-wrap justify-center">
+						<span className="whitespace-nowrap">NYC Test Prep</span>
+					{"  ·  "}
+					<span className="whitespace-nowrap">College Advisory</span>
+					{"  ·  "}
+					<span className="whitespace-nowrap">Academic Support</span>
 					</span>
 
 					<div className="font-playfair text-5xl lg:text-7xl font-semibold leading-tight max-w-[500px] pb-4">

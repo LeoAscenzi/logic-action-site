@@ -68,7 +68,10 @@ class ExamCreate(BaseModel):
 
 
 class ExamUpdate(BaseModel):
-    score: float
+    score: Optional[float] = None
+    max_score: Optional[float] = None
+    type: Optional[ExamType] = None
+    exam_date: Optional[date] = None
 
 
 class ExamOut(BaseModel):
@@ -101,6 +104,18 @@ class ClassOut(BaseModel):
     capacity: int
 
     model_config = {"from_attributes": True}
+
+
+class ClassUpdate(BaseModel):
+    class_name: Optional[str] = None
+    total_sessions: Optional[int] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    capacity: Optional[int] = None
+
+
+class BulkDeleteBody(BaseModel):
+    ids: list[int]
 
 
 # Sessions

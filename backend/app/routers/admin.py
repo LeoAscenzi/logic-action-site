@@ -8,8 +8,10 @@ from app.routers.deps import require_admin
 from app.schemas.schemas import (
     AttendanceImport,
     AttendanceOut,
+    BulkDeleteBody,
     ClassCreate,
     ClassOut,
+    ClassUpdate,
     ExamCreate,
     ExamOut,
     ExamUpdate,
@@ -134,3 +136,49 @@ async def import_sessions(
     svc: ClassService = Depends(ClassService),
 ):
     return await svc.import_sessions(body)
+
+
+@router.delete("/delete-students", status_code=status.HTTP_204_NO_CONTENT)
+async def bulk_delete_students(
+    body: BulkDeleteBody,
+    _: User = Depends(require_admin),
+    svc: StudentService = Depends(StudentService),
+):
+    await svc.delete_students(body.ids)
+
+
+@router.get("/grades/{student_id}", response_model=list[ExamOut])
+async def get_student_grades(
+    student_id: int,
+    _: User = Depends(require_admin),
+    svc: ExamService = Depends(ExamService),
+):
+    return await svc.get_grades_for_student(student_id)
+
+
+@router.patch("/update-class/{class_id}", response_model=ClassOut)
+async def update_class(
+    class_id: int,
+    body: ClassUpdate,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    return await svc.update_class(class_id, body)
+
+
+@router.delete("/delete-class/{class_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_class(
+    class_id: int,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    await svc.delete_class(class_id)
+
+
+@router.delete("/delete-classes", status_code=status.HTTP_204_NO_CONTENT)
+async def bulk_delete_classes(
+    body: BulkDeleteBody,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    await svc.delete_classes(body.ids)

@@ -29,12 +29,21 @@ class ExamService(BaseService):
 
     async def update_grade(self, exam_id: int, body: ExamUpdate) -> Exam:
         exam = await self._get_exam_or_404(exam_id)
-        if body.score > float(exam.max_score):
+        new_score = body.score if body.score is not None else float(exam.score)
+        new_max   = body.max_score if body.max_score is not None else float(exam.max_score)
+        if new_score > new_max:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="score cannot exceed max_score",
             )
-        exam.score = body.score
+        if body.score is not None:
+            exam.score = body.score
+        if body.max_score is not None:
+            exam.max_score = body.max_score
+        if body.type is not None:
+            exam.type = body.type
+        if body.exam_date is not None:
+            exam.exam_date = body.exam_date
         await self.db.commit()
         await self.db.refresh(exam)
         return exam

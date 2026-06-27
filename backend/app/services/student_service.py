@@ -49,6 +49,21 @@ class StudentService(BaseService):
         student.is_deleted = True
         await self.db.commit()
 
+    async def delete_students(self, ids: list[int]) -> None:
+        result = await self.db.execute(
+            select(Student).where(Student.id.in_(ids), Student.is_deleted == False)  # noqa: E712
+        )
+        found = {s.id: s for s in result.scalars().all()}
+        missing = [i for i in ids if i not in found]
+        if missing:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Students not found: {missing}",
+            )
+        for student in found.values():
+            student.is_deleted = True
+        await self.db.commit()
+
     async def get_students_for_parent(self, parent_id: int) -> list[Student]:
         result = await self.db.execute(
             select(Student).where(
