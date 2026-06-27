@@ -3,6 +3,8 @@ import { Program } from "@/app/lib/getPrograms";
 export const programs: Program[] = [
     {
         "title": "SAT Program",
+        "slug": "sat-prep",
+        "category": "Test Prep",
         "description": "Our SAT program is built around the College Board's latest Digital SAT format, combining targeted content instruction with timed practice tests to maximize your score improvement.",
         "facts": [
             "Full coverage of Reading & Writing and Math modules",

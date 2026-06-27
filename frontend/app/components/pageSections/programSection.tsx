@@ -11,7 +11,7 @@ export default function ProgramSection({title, description, facts, stats} : Prog
                     <div className="font-inter text-lg pb-4">{description}</div>
                     <div className="font-inter text-md">
                         <ul className="">
-                            {facts.map((fact: string, i: number) => {
+                            {facts?.map((fact: string, i: number) => {
                                 return (
                                     <li key={i} className="mb-2">{fact}</li>
                                 )
@@ -20,7 +20,7 @@ export default function ProgramSection({title, description, facts, stats} : Prog
                     </div>
                 </div>
                 <div className="grid grid-rows-4 gap-3">
-                    {stats.map(({label, value}: {label: string, value: string}, i: number) => {
+                    {stats?.map(({label, value}: {label: string, value: string}, i: number) => {
                         return (
                             <InfoCard
                                 key={i}

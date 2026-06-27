@@ -10,7 +10,7 @@ export default function AuthHeaderButton() {
   if (!user) {
     return (
       <Link
-        href="/get-started"
+        href="/get-started#consultation"
         className="rounded-lg bg-[var(--gold)] px-4 py-2 text-sm font-semibold text-[var(--ink)] hover:bg-[var(--gold-light)] transition-colors whitespace-nowrap"
       >
         Book a Consult

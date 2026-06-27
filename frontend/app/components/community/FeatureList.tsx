@@ -8,7 +8,7 @@ export default function FeatureList({ eyebrow, title, items }: FeatureListProps)
     return (
         <div>
             <span className="eyebrow">{eyebrow}</span>
-            <h2 className="font-playfair text-xl lg:text-2xl font-medium mb-4">{title}</h2>
+            <h2 className="font-playfair text-title font-medium mb-4">{title}</h2>
             <ul className="list-none">
                 {items.map((item, i) => (
                     <li

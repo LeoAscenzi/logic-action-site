@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Mentor } from "@/app/lib/getMentors";
 
 function initials(name: string) {
@@ -12,9 +13,11 @@ export default function MentorCard({ name, year, school, photo, description, tag
 
             {/* Profile photo / initials avatar */}
             {photo ? (
-                <img
+                <Image
                     src={photo}
                     alt={name}
+                    width={96}
+                    height={96}
                     className="w-24 h-24 rounded-full object-cover shrink-0"
                 />
             ) : (

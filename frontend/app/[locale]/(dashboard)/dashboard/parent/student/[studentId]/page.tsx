@@ -57,7 +57,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ studen
   if (!isAuthorized) return null;
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl p-8">
       <Link href="/en/dashboard/parent" className="text-sm text-[#0D0F14]/50 hover:text-[#D4AF37] mb-4 inline-block transition-colors">
         ← Back to students
       </Link>

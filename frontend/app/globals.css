@@ -38,6 +38,9 @@
   --font-mono:        var(--font-geist-mono);
   --font-inter:       var(--font-inter);
   --font-playfair:    var(--font-playfair);
+  /* Section typography scale */
+  --text-title:       2rem;
+  --text-body:        1.12rem;
 }
 
 html { scroll-behavior: smooth; }
@@ -70,11 +73,6 @@ body {
 [data-section="white"] h2,
 [data-section="white"] h3  { color: var(--ink); }
 
-[data-section="navy"] .lead,
-[data-section="navy-mid"] .lead { color: var(--cream-dim); }
-[data-section="cream"] .lead,
-[data-section="white"] .lead    { color: var(--ink-soft);  }
-
 /* ── Utilities ───────────────────────────────── */
 /* Eyebrow: small all-caps tag above headings */
 .eyebrow {
@@ -84,7 +82,6 @@ body {
   font-size: 0.72rem;
   font-weight: 600;
   color: var(--gold);
-  margin-bottom: 14px;
 }
 
 .gold-text       { color: var(--gold); }
@@ -100,7 +97,7 @@ body {
 
 input {
   border-radius: var(--radius-sm);
-  padding: 2px;
+  padding: 8px;
 }
 
 a { color: inherit; text-decoration: none; }
@@ -114,3 +111,11 @@ a.nav-link:hover  { color: var(--white); background: rgba(255, 255, 255, 0.08); 
 a.nav-link.active { color: var(--gold); }
 ul          { list-style: disc inside; }
 li::marker  { color: var(--gold); }
+
+@keyframes carousel-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.carousel-track       { animation: carousel-scroll 55s linear infinite; }
+.carousel-track:hover { animation-play-state: paused; }

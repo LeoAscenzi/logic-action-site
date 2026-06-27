@@ -1,185 +1,131 @@
 "use client";
-import React, { useState } from 'react';
-import axios, { AxiosError } from 'axios';
-import Button from '../button';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import axios, { AxiosError } from "axios";
+import { inputCls, labelCls, validatePhone } from "./formStyles";
 
-type Status = {
-  submitted: boolean;
-  submitting: boolean;
-  info: {
-    error: boolean;
-    msg: string | null;
-  };
+type FormData = {
+	name:    string;
+	email:   string;
+	phone?:  string;
+	message: string;
 };
 
-type Inputs = {
-    fname: string;
-    lname: string;
-    number: string;
-    email: string;
-    message: string;
-};
+export default function ContactForm() {
+	const [submitted, setSubmitted]     = useState(false);
+	const [submitting, setSubmitting]   = useState(false);
+	const [serverError, setServerError] = useState<string | null>(null);
 
-const ContactForm: React.FC = () => {
-  const [status, setStatus] = useState<Status>({
-    submitted: false,
-    submitting: false,
-    info: { error: false, msg: null },
-  });
+	const {
+		register,
+		handleSubmit,
+		reset,
+		formState: { errors },
+	} = useForm<FormData>();
 
-  const [inputs, setInputs] = useState<Inputs>({
-    fname: "",
-    lname: "",
-    number: "",
-    email: "",
-    message: "",
-  });
+	const onSubmit = async (data: FormData) => {
+		setSubmitting(true);
+		setServerError(null);
+		try {
+			await axios.post(`${process.env.NEXT_PUBLIC_FORMSPREE_CONTACT_US}`, data);
+			setSubmitted(true);
+			reset();
+		} catch (err) {
+			const error = err as AxiosError<{ error: string }>;
+			setServerError(error.response?.data?.error ?? "Something went wrong.");
+		} finally {
+			setSubmitting(false);
+		}
+	};
 
-  const handleServerResponse = (ok: boolean, msg: string) => {
-    if (ok) {
-      setStatus({
-        submitted: true,
-        submitting: false,
-        info: { error: false, msg },
-      });
-      setInputs({
-        fname: "",
-        lname: "",
-        number: "",
-        email: "",
-        message: "",
-      });
-    } else {
-      setStatus((prev) => ({
-        ...prev,
-        submitting: false,
-        info: { error: true, msg },
-      }));
-    }
-  };
+	if (submitted) {
+		return (
+			<div className="bg-white ml-[-100px] min-w-2xl rounded-2xl p-8 shadow-[var(--shadow-sm)] flex flex-col items-center justify-center gap-4 min-h-[340px]">
+				<p className="text-2xl">✓</p>
+				<p className="font-playfair text-xl font-semibold text-[var(--navy)]">Message sent!</p>
+				<p className="text-sm text-[var(--ink-soft)] text-center max-w-xs">
+					We&apos;ll be in touch within 24 hours.
+				</p>
+			</div>
+		);
+	}
 
-  const handleOnChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { id, value } = e.target;
+	return (
+		<div className="bg-white ml-[-100px] min-w-2xl rounded-2xl p-8 shadow-[var(--shadow-sm)]">
+			<h2 className="font-playfair text-2xl font-semibold text-[var(--navy)] mb-6">
+				Send Us a Message
+			</h2>
 
-    setInputs((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
+			<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
 
-    setStatus({
-      submitted: false,
-      submitting: false,
-      info: { error: false, msg: null },
-    });
-  };
+				<div className="flex flex-col gap-1.5">
+					<label className={labelCls}>Name</label>
+					<input
+						type="text"
+						placeholder="Your full name"
+						className={inputCls}
+						{...register("name", { required: "Name is required" })}
+					/>
+					{errors.name && (
+						<p className="text-red-500 text-xs mt-0.5">{errors.name.message}</p>
+					)}
+				</div>
 
-  const handleOnSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
+				<div className="flex flex-col gap-1.5">
+					<label className={labelCls}>Email</label>
+					<input
+						type="email"
+						placeholder="you@email.com"
+						className={inputCls}
+						{...register("email", {
+							required: "Email is required",
+							pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email address" },
+						})}
+					/>
+					{errors.email && (
+						<p className="text-red-500 text-xs mt-0.5">{errors.email.message}</p>
+					)}
+				</div>
 
-    setStatus((prev) => ({ ...prev, submitting: true }));
+				<div className="flex flex-col gap-1.5">
+					<label className={labelCls}>Phone <span className="font-normal text-[var(--ink-soft)]">(optional)</span></label>
+					<input
+						type="tel"
+						placeholder="(123) 456-7890"
+						className={inputCls}
+						{...register("phone", { validate: validatePhone })}
+					/>
+					{errors.phone && (
+						<p className="text-red-500 text-xs mt-0.5">{errors.phone.message}</p>
+					)}
+				</div>
 
-    try {
-      await axios.post(
-        'https://formspree.io/f/mwvrddjq',
-        inputs
-      );
+				<div className="flex flex-col gap-1.5">
+					<label className={labelCls}>Message</label>
+					<textarea
+						placeholder="How can we help?"
+						rows={4}
+						className={inputCls + " resize-none"}
+						{...register("message", { required: "Message is required" })}
+					/>
+					{errors.message && (
+						<p className="text-red-500 text-xs mt-0.5">{errors.message.message}</p>
+					)}
+				</div>
 
-      handleServerResponse(
-        true,
-        'Thank you, your message has been submitted.'
-      );
-    } catch (err) {
-      const error = err as AxiosError<{ error: string }>;
-      handleServerResponse(
-        false,
-        error.response?.data?.error || 'Something went wrong.'
-      );
-    }
-  };
+				{serverError && (
+					<p className="text-red-500 text-xs">{serverError}</p>
+				)}
 
-  return (
-    <main className="">
-      <div className="emphasis-text gold-text text-left p-2">Message us</div>
-      <form onSubmit={handleOnSubmit} className="grid grid-cols-2 gap-3 px-2 text-left">
-        <div className="grid col-start-1 col-span-2 md:col-span-1">
-            <label htmlFor="fname" className="emphasis-text gray-text">First Name</label>
-            <input
-            id="fname"
-            type="text"
-            name="fname"
-            className="bg-white"
-            onChange={handleOnChange}
-            required
-            value={inputs.fname}
-            />
-        </div>
-        <div className="grid col-start-1 col-span-2 md:col-start-2 md:col-span-1">
-            <label htmlFor="lname" className="emphasis-text gray-text">Last Name</label>
-            <input
-            id="lname"
-            name="lname"
-            className="bg-white rounded-md"
-            onChange={handleOnChange}
-            required
-            value={inputs.lname}
-            />
-        </div>
-        <div className="grid col-span-2">
-            <label htmlFor="email" className="emphasis-text gray-text">Email Address</label>
-            <input
-            id="email"
-            type="email"
-            name="_replyto"
-            className="bg-white"
-            onChange={handleOnChange}
-            required
-            value={inputs.email}
-            />
-        </div>
-        <div className="grid col-span-2 col-start-1">
-            <label htmlFor="number" className="emphasis-text gray-text">Phone Number</label>
-            <input
-            id="number"
-            type="tel"
-            name="Phone Number"
-            className="bg-white"
-            onChange={handleOnChange}
-            value={inputs.number}
-            />
-        </div>
-        <div className="grid col-span-2">
-            <label htmlFor="message" className="emphasis-text gray-text">Message</label>
-            <textarea
-            id="message"
-            name="Message"
-            className="bg-white min-h-[100px]"
-            onChange={handleOnChange}
-            required
-            value={inputs.message}
-            />
-        </div>
-        <div className="grid col-span-2 py-2 justify-center">
-            <Button className="min-w-[200px] max-w-[200px] py-2 cursor-pointer" type="submit" disabled={status.submitting} >
-            {!status.submitting
-                ? !status.submitted
-                ? 'Submit'
-                : 'Submitted'
-                : 'Submitting...'}
-            </Button>
-        </div>
-      </form>
+				<button
+					type="submit"
+					disabled={submitting}
+					className="w-full rounded-lg bg-[var(--gold)] text-[var(--ink)] py-3 text-sm font-semibold hover:bg-[var(--gold-light)] transition-colors disabled:opacity-60 mt-1 cursor-pointer"
+				>
+					{submitting ? "Sending…" : "Submit"}
+				</button>
 
-      {status.info.error && (
-        <div className="error">Error: {status.info.msg}</div>
-      )}
-
-      {!status.info.error && status.info.msg && (
-        <p>{status.info.msg}</p>
-      )}
-    </main>
-  );
-};
-
-export default ContactForm;
+			</form>
+		</div>
+	);
+}

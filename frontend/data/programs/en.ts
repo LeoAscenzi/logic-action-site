@@ -2,76 +2,57 @@ import { Program } from "@/app/lib/getPrograms";
 
 export const programs: Program[] = [
     {
-        "title": "SAT Program",
-        "description": "Our SAT program is built around the College Board's latest Digital SAT format, combining targeted content instruction with timed practice tests to maximize your score improvement.",
-        "facts": [
-            "Full coverage of Reading & Writing and Math modules",
-            "4 full-length proctored practice tests with detailed review",
-            "Proven test-taking strategies and time management drills",
-            "Personalized study plan based on diagnostic assessment",
-            "Score tracking and progress reports shared with parents",
-        ],
-        "stats": [
-            {
-                "label": "Format",
-                "value": "Weekly 90-min sessions + bi-weekly full practice tests",
-            },
-            {
-                "label": "Duration",
-                "value": "8–16 weeks depending on target test date",
-            },
-            {
-                "label": "Class Size",
-                "value": "Small group (4–6 students) or 1-on-1 available",
-            }
-        ]
+        title: "SAT Prep",
+        slug: "sat-prep",
+        category: "Test Prep",
+        description: "Built around the latest Digital SAT format — targeted instruction, full-length practice tests, and a personalized score improvement plan.",
     },
     {
-        "title": "AP Courses",
-        "description": "Earn college credit before graduation. Our AP tutors are subject-matter experts who help students master course content and prepare for the rigorous May exams — targeting scores of 4 or 5.",
-        "facts": [
-            "Subject-specific tutors matched to each student's course",
-            "Curriculum aligned to College Board AP frameworks",
-            "Free-response and essay writing practice with feedback",
-            "Full AP exam simulations in April leading up to exam season",
-        ],
-        "stats": [
-            {
-                "label": "Format",
-                "value": "Weekly 60–90 min 1-on-1 or small group sessions",
-            },
-            {
-                "label": "Duration",
-                "value": "Full year or intensive spring exam prep (6–8 weeks)",
-            },
-            {
-                "label": "Subjects Offered",
-                "value": "Calculus AB/BC, Chemistry, English, Biology",
-            }
-        ]
+        title: "ACT Prep",
+        slug: "act-prep",
+        category: "Test Prep",
+        description: "Comprehensive ACT prep covering all four sections with timed drills, strategy sessions, and expert feedback on practice tests.",
     },
     {
-        "title": "SSAT Program",
-        "description": "The SSAT rewards speed and strategy. Our program focuses on section-specific techniques and pacing so students can confidently work through all four sections within the strict time limits.",
-        "facts": [
-            "Section-by-section instruction: English, Math, Reading",
-            "Timed drills to build speed without sacrificing accuracy",
-            "Optional Writing section coaching for schools that require it",
-            "SAT vs ACT diagnostic to confirm the right test for each student",
-        ],
-        "stats": [
-            {
-                "label": "Format",
-                "value": "Weekly 90-min sessions + full-length timed tests",
-            },
-            {
-                "label": "Duration",
-                "value": "8–12 weeks leading up to target test date",
-            },
-            {
-                "label": "Class Size",
-                "value": "Small group (4–6 students) or 1-on-1 available",
-            }
-        ]
+        title: "PSAT Prep",
+        slug: "psat-prep",
+        category: "Test Prep",
+        description: "Lay the foundation for National Merit recognition and future SAT success with focused PSAT prep starting in 9th or 10th grade.",
     },
-]
+    {
+        title: "SSAT Prep",
+        slug: "ssat-prep",
+        category: "Test Prep",
+        description: "Section-specific instruction and timed drills to build the speed and accuracy needed for competitive independent school admissions.",
+    },
+    {
+        title: "AP Course Support",
+        slug: "ap-courses",
+        category: "Academic",
+        description: "Subject-matched tutors help students master AP content and prepare for May exams — targeting scores of 4 or 5 across 20+ subjects.",
+    },
+    {
+        title: "HS Academic Support",
+        slug: "hs-academic-support",
+        category: "Academic",
+        description: "Weekly tutoring across core high school subjects to strengthen GPA, build strong study habits, and keep students ahead of the curve.",
+    },
+    {
+        title: "MS Academic Support",
+        slug: "ms-academic-support",
+        category: "Academic",
+        description: "Targeted middle school support in math, science, and ELA to build the academic foundation that sets students up for a strong high school start.",
+    },
+    {
+        title: "HS Admissions Advisory",
+        slug: "hs-admissions-advisory",
+        category: "Advisory",
+        description: "Strategic guidance through the private and independent high school application process — from school selection to essays to interview prep.",
+    },
+    {
+        title: "College Admissions Advisory",
+        slug: "college-admissions-advisory",
+        category: "Advisory",
+        description: "End-to-end college counseling: school list building, essay coaching, activity strategy, and application management for selective college admissions.",
+    },
+];

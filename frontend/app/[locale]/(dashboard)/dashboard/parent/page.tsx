@@ -27,7 +27,7 @@ export default function ParentDashboard() {
   if (!isAuthorized) return null;
 
   return (
-    <div>
+    <div className="p-8">
       <h1 className="text-2xl font-semibold text-[#D4AF37] mb-6 tracking-wide">My Students</h1>
       {loading ? (
         <p className="text-[#0D0F14]/50">Loading…</p>

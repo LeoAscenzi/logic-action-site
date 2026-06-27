@@ -28,14 +28,18 @@ export default function CommunityLoginCard() {
     };
 
     const inputCls =
-        "w-full rounded-lg border border-[var(--line)] bg-white px-4 py-2.5 text-sm text-[var(--ink)] placeholder:text-[var(--ink-soft)] focus:outline-none focus:ring-1 focus:ring-[var(--navy)]";
+        "w-full rounded-lg border border-[var(--line)] bg-white px-4 py-2.5 text-sm text-[var(--ink)] " + 
+        "placeholder:text-[var(--ink-soft)] focus:outline-none focus:ring-1 focus:ring-[var(--navy)]";
+    
+    const labelCls = "text-[var(--ink)] text-xs font-inter font-semibold"
 
     return (
         <div className="bg-[var(--cream)] rounded-2xl p-8 shadow-[var(--shadow)]">
-            <h3 className="font-playfair text-2xl text-[var(--ink)] mb-1">Welcome back.</h3>
-            <p className="text-sm text-[var(--ink-soft)] mb-6">Sign in to access your resources.</p>
+            <div className="font-playfair text-2xl text-[var(--ink)] mb-1">Member Login</div>
+            <p className="text-sm text-[var(--ink-soft)] mb-6">Welcome back. Sign in to access your resources.</p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                <label className={labelCls}>Username</label>
                 <input
                     name="username"
                     placeholder="Email or Username"
@@ -44,10 +48,11 @@ export default function CommunityLoginCard() {
                     required
                     className={inputCls}
                 />
+                <label className={labelCls}>Password</label>
                 <input
                     name="password"
                     type="password"
-                    placeholder="Password"
+                    placeholder="••••••••"
                     value={fields.password}
                     onChange={handleChange}
                     required
@@ -59,7 +64,7 @@ export default function CommunityLoginCard() {
                 <button
                     type="submit"
                     disabled={status === "loading"}
-                    className="w-full rounded-lg bg-[var(--navy)] text-[var(--cream)] py-2.5 text-sm font-semibold hover:bg-[var(--navy-mid)] transition-colors disabled:opacity-50 mt-1"
+                    className="w-full rounded-lg bg-[var(--navy)] text-[var(--cream)] py-2.5 text-sm font-semibold hover:bg-[var(--navy-mid)] hover:cursor-pointer transition-colors disabled:opacity-50 mt-1"
                 >
                     {status === "loading" ? "Signing in…" : "Log in"}
                 </button>
