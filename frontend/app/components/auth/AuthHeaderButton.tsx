@@ -21,7 +21,7 @@ export default function AuthHeaderButton() {
   return (
     <div className="flex items-center gap-3 text-sm">
       <Link
-        href={`/en/dashboard/${user.role}`}
+        href={`/dashboard/${user.role}`}
         className="font-semibold text-[var(--gold)] hover:underline whitespace-nowrap"
       >
         {user.fname}

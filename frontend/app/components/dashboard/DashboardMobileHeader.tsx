@@ -32,7 +32,7 @@ export default function DashboardMobileHeader() {
 
 	const handleLogout = async () => {
 		await logout();
-		router.replace("/en");
+		router.replace("/");
 	};
 
 	const overlay = open ? (
@@ -77,7 +77,7 @@ export default function DashboardMobileHeader() {
 					))}
 					{user?.role === "parent" && (
 						<Link
-							href="/en/dashboard/parent"
+							href="/dashboard/parent"
 							className="rounded-lg px-3 py-3 text-base text-[#f5f0e8]/80 hover:text-[#D4AF37] border-b border-[#D4AF37]/10"
 						>
 							My Students

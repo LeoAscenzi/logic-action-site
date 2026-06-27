@@ -9,10 +9,7 @@ const stats = [
 							{ value: "50+",   label: "Students placed in top schools" },
 							{ value: "4.9★",  label: "Average family satisfaction"    },
 						];
-export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
-	const { locale } = await params;
-	void locale;
-
+export default async function Home() {
 	return (
 		<div>
 

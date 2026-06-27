@@ -40,7 +40,7 @@ export default function ParentDashboard() {
           {students.map((s) => (
             <Link
               key={s.id}
-              href={`/en/dashboard/parent/student/${s.id}`}
+              href={`/dashboard/parent/student/${s.id}`}
               className="rounded-xl border border-[#D4AF37]/40 bg-white/50 p-6 hover:bg-white/80 hover:border-[#D4AF37] transition-all"
             >
               <p className="font-semibold text-lg text-[#0D0F14]">{s.fname} {s.lname}</p>

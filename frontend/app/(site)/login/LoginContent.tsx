@@ -5,7 +5,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import LoginForm from "@/app/components/auth/LoginForm";
 import RegisterForm from "@/app/components/auth/RegisterForm";
 
-export default function LoginPage() {
+export default function LoginContent() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -14,7 +14,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (!isLoading && user) {
       const from = searchParams.get("from");
-      router.replace(from ?? `/en/dashboard/${user.role}`);
+      router.replace(from ?? `/dashboard/${user.role}`);
     }
   }, [user, isLoading, router, searchParams]);
 
@@ -41,8 +41,8 @@ export default function LoginPage() {
           </button>
         </div>
         {tab === "login"
-          ? <LoginForm onSuccess={() => router.replace(from ?? "/en/dashboard/parent")} />
-          : <RegisterForm onSuccess={() => router.replace(from ?? "/en/dashboard/parent")} />
+          ? <LoginForm onSuccess={() => router.replace(from ?? "/dashboard/parent")} />
+          : <RegisterForm onSuccess={() => router.replace(from ?? "/dashboard/parent")} />
         }
       </div>
     </main>

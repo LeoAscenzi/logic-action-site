@@ -3,9 +3,8 @@ import HeroSection from "@/app/components/pageSections/HeroSection";
 import MentorCard from "@/app/components/cards/MentorCard";
 import { getMentors } from "@/app/lib/getMentors";
 
-export default async function MentorsPage({ params }: { params: Promise<{ locale: string }> }) {
-	const { locale } = await params;
-	const mentors = await getMentors(locale);
+export default async function MentorsPage() {
+	const mentors = await getMentors("en");
 
 	return (
 		<div>

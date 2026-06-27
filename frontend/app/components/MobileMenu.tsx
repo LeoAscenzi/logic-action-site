@@ -4,15 +4,14 @@ import { useState, useEffect, Fragment } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
 
 const LINKS = [
-	{ url: "/",          key: "home"      },
-	{ url: "/programs",  key: "programs"  },
-	{ url: "/mentors",   key: "mentors"   },
-	{ url: "/community", key: "community" },
-	{ url: "/events",    key: "events"    },
-	{ url: "/contact",   key: "contact"   },
+	{ url: "/",          label: "Home"       },
+	{ url: "/programs",  label: "Programs"   },
+	{ url: "/mentors",   label: "Mentors"    },
+	{ url: "/community", label: "Community"  },
+	{ url: "/events",    label: "Events"     },
+	{ url: "/contact",   label: "Contact Us" },
 ];
 
 const GET_STARTED_SUB = [
@@ -24,7 +23,6 @@ export default function MobileMenu() {
 	const [open, setOpen]       = useState(false);
 	const [mounted, setMounted] = useState(false);
 	const pathname              = usePathname();
-	const t                     = useTranslations("navbar");
 
 	// Wait for client mount before portal is available
 	useEffect(() => { setMounted(true); }, []); // eslint-disable-line react-hooks/set-state-in-effect
@@ -38,13 +36,12 @@ export default function MobileMenu() {
 		return () => { document.body.style.overflow = ""; };
 	}, [open]);
 
-	const normalizedPath = pathname.replace(/^\/[a-z]{2}(?=\/|$)/, "") || "/";
 	const close = () => setOpen(false);
-	const isGetStartedActive = normalizedPath === "/get-started";
+	const isGetStartedActive = pathname === "/get-started";
 
 	const linkCls = (url: string) =>
 		`block py-5 text-lg font-medium border-b border-[var(--line-dark)] transition-colors ${
-			normalizedPath === url ? "text-[var(--gold)]" : "text-cream-dim hover:text-white"
+			pathname === url ? "text-[var(--gold)]" : "text-cream-dim hover:text-white"
 		}`;
 
 	const overlay = open ? (
@@ -70,9 +67,9 @@ export default function MobileMenu() {
 			{/* Nav links */}
 			<nav className="flex flex-col flex-1 overflow-y-auto px-6 pt-2">
 
-				{LINKS.map(({ url, key }) => (
+				{LINKS.map(({ url, label }) => (
 					<Link key={url} href={url} onClick={close} className={linkCls(url)}>
-						{t(key)}
+						{label}
 					</Link>
 				))}
 
@@ -85,7 +82,7 @@ export default function MobileMenu() {
 							isGetStartedActive ? "text-[var(--gold)]" : "text-cream-dim hover:text-white"
 						}`}
 					>
-						{t("getStarted")}
+						Get Started
 					</Link>
 					<div className="flex flex-col pl-4 pb-4 gap-1">
 						{GET_STARTED_SUB.map(({ url, label, sub, gold }) => (

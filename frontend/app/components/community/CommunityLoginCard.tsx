@@ -20,7 +20,7 @@ export default function CommunityLoginCard() {
         setError("");
         try {
             const profile = await login(fields.username, fields.password);
-            router.push(`/en/dashboard/${profile.role}`);
+            router.push(`/dashboard/${profile.role}`);
         } catch (err) {
             setStatus("error");
             setError(err instanceof Error ? err.message : "Login failed");

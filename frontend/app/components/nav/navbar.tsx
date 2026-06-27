@@ -1,18 +1,16 @@
-import { useTranslations } from "next-intl";
 import Navlink from "./navlink";
 import NavDropdown from "./navDropdown";
 
 export default function Navbar() {
-    const t = useTranslations("navbar");
     return (
         <div className="flex items-center gap-x-3">
-            <Navlink url="/"           text={t("home")} />
-            <Navlink url="/programs"   text={t("programs")} />
-            <Navlink url="/mentors"    text={t("mentors")} />
-            <Navlink url="/community"  text={t("community")} />
-            <Navlink url="/events"     text={t("events")} />
-            <NavDropdown               text={t("getStarted")} />
-            <Navlink url="/contact"    text={t("contact")} />
+            <Navlink url="/"           text="Home" />
+            <Navlink url="/programs"   text="Programs" />
+            <Navlink url="/mentors"    text="Mentors" />
+            <Navlink url="/community"  text="Community" />
+            <Navlink url="/events"     text="Events" />
+            <NavDropdown               text="Get Started" />
+            <Navlink url="/contact"    text="Contact Us" />
         </div>
     );
 }

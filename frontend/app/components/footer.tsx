@@ -1,22 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
 import Section from "./section";
 
 const NAV_LINKS = [
-	{ href: "/",             key: "home"       },
-	{ href: "/programs",     key: "programs"   },
-	{ href: "/mentors",      key: "mentors"    },
-	{ href: "/community",    key: "community"  },
-	{ href: "/events",       key: "events"     },
-	{ href: "/get-started",  key: "getStarted" },
-	{ href: "/contact",      key: "contact"    },
+	{ href: "/",             label: "Home"       },
+	{ href: "/programs",     label: "Programs"   },
+	{ href: "/mentors",      label: "Mentors"    },
+	{ href: "/community",    label: "Community"  },
+	{ href: "/events",       label: "Events"     },
+	{ href: "/get-started",  label: "Get Started"},
+	{ href: "/contact",      label: "Contact Us" },
 ] as const;
 
-export default function Footer() {
-	const tNav    = useTranslations("navbar");
-	const tFooter = useTranslations("footer");
+const PHONE        = "(123) 456-7890";
+const PHONE_DIGITS = "1234567890";
 
+export default function Footer() {
 	return (
 		<Section variant="navy" className="border-t border-white/15">
 
@@ -43,13 +42,13 @@ export default function Footer() {
 					<div className="flex flex-col gap-4">
 						<span className="eyebrow !text-white">Explore</span>
 						<nav className="flex flex-col gap-2.5">
-							{NAV_LINKS.map(({ href, key }) => (
+							{NAV_LINKS.map(({ href, label }) => (
 								<Link
 									key={href}
 									href={href}
 									className="w-fit text-sm text-cream-dim hover:text-white transition-colors"
 								>
-									{tNav(key)}
+									{label}
 								</Link>
 							))}
 						</nav>
@@ -59,10 +58,10 @@ export default function Footer() {
 					<div className="flex flex-col gap-4">
 						<span className="eyebrow">Talk to Us</span>
 						<a
-							href={`tel:${tFooter("phone").replace(/\D/g, "")}`}
+							href={`tel:${PHONE_DIGITS}`}
 							className="w-fit font-playfair text-3xl font-semibold text-[var(--gold)] hover:text-[var(--gold-light)] transition-colors leading-tight"
 						>
-							{tFooter("phone")}
+							{PHONE}
 						</a>
 						<p className="text-sm text-cream-dim leading-relaxed max-w-xs">
 							We respond within 24 hours. Call or text for fastest response.

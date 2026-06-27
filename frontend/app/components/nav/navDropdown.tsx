@@ -23,8 +23,7 @@ export default function NavDropdown({ text }: { text: string }) {
 	const [hash, setHash] = useState("");
 	const closeTimer      = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const pathname        = usePathname();
-	const normalizedPath  = pathname.replace(/^\/[a-z]{2}(?=\/|$)/, "") || "/";
-	const isOnGetStarted  = normalizedPath === "/get-started";
+	const isOnGetStarted  = pathname === "/get-started";
 
 	useEffect(() => {
 		const update = () => setHash(window.location.hash);

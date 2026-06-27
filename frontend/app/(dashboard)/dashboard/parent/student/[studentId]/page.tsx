@@ -24,7 +24,7 @@ interface Class {
   class_name: string;
 }
 
-export default function StudentDetailPage({ params }: { params: Promise<{ studentId: string; locale: string }> }) {
+export default function StudentDetailPage({ params }: { params: Promise<{ studentId: string }> }) {
   const { studentId } = use(params);
   const { isAuthorized } = useRequireAuth("parent");
   const apiFetch = useApiFetch();

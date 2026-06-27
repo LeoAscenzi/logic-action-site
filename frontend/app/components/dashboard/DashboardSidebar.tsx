@@ -21,7 +21,7 @@ export default function DashboardSidebar() {
 
 	const handleLogout = async () => {
 		await logout();
-		router.replace("/en");
+		router.replace("/");
 	};
 
 	return (
@@ -53,7 +53,7 @@ export default function DashboardSidebar() {
 				))}
 				{user?.role === "admin" && !isAdminPage && (
 					<Link
-						href="/en/dashboard/admin"
+						href="/dashboard/admin"
 						className="rounded-lg px-3 py-2 text-[#f5f0e8]/80 hover:text-[#D4AF37] hover:bg-white/5 transition-colors"
 					>
 						Admin Dashboard
@@ -61,7 +61,7 @@ export default function DashboardSidebar() {
 				)}
 				{user?.role === "parent" && (
 					<Link
-						href="/en/dashboard/parent"
+						href="/dashboard/parent"
 						className="rounded-lg px-3 py-2 text-[#f5f0e8]/80 hover:text-[#D4AF37] hover:bg-white/5 transition-colors"
 					>
 						My Students
