@@ -1,15 +1,20 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from sqlalchemy import select
 
 from app.db.session import get_db
+from app.core.security import hash_password
 from app.models.models import User, UserRole
 from app.routers.deps import require_admin
 from app.schemas.schemas import (
+    AttendanceCreate,
     AttendanceImport,
     AttendanceOut,
+    AttendanceUpdate,
     BulkDeleteBody,
     ClassCreate,
+    ClassEnrollmentCreate,
+    ClassEnrollmentOut,
     ClassOut,
     ClassUpdate,
     ExamCreate,
@@ -19,7 +24,9 @@ from app.schemas.schemas import (
     SessionOut,
     StudentAssign,
     StudentCreate,
+    StudentDetailOut,
     StudentOut,
+    TeacherCreate,
     UserOut,
 )
 from app.services.class_service import ClassService
@@ -182,3 +189,134 @@ async def bulk_delete_classes(
     svc: ClassService = Depends(ClassService),
 ):
     await svc.delete_classes(body.ids)
+
+
+@router.post("/create-teacher", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+async def create_teacher(
+    body: TeacherCreate,
+    _: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    existing = await db.execute(
+        select(User).where((User.username == body.username) | (User.email == body.email))
+    )
+    if existing.scalar_one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Username or email already registered",
+        )
+    user = User(
+        username=body.username,
+        fname=body.fname,
+        lname=body.lname,
+        email=body.email,
+        password=hash_password(body.password),
+        role=UserRole.teacher,
+    )
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+@router.get("/teachers", response_model=list[UserOut])
+async def list_teachers(
+    _: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(User).where(User.role == UserRole.teacher))
+    return result.scalars().all()
+
+
+@router.get("/students/{student_id}", response_model=StudentDetailOut)
+async def get_student_detail(
+    student_id: int,
+    _: User = Depends(require_admin),
+    svc: StudentService = Depends(StudentService),
+):
+    return await svc.get_student_detail(student_id)
+
+
+@router.get("/classes/{class_id}/students", response_model=list[StudentOut])
+async def list_class_students(
+    class_id: int,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    return await svc.get_enrolled_students(class_id)
+
+
+@router.post("/classes/{class_id}/students", response_model=ClassEnrollmentOut, status_code=status.HTTP_201_CREATED)
+async def enroll_student(
+    class_id: int,
+    body: ClassEnrollmentCreate,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    return await svc.enroll_student(class_id, body)
+
+
+@router.delete("/classes/{class_id}/students/{student_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def unenroll_student(
+    class_id: int,
+    student_id: int,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    await svc.unenroll_student(class_id, student_id)
+
+
+@router.get("/classes/{class_id}/sessions", response_model=list[SessionOut])
+async def list_class_sessions(
+    class_id: int,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    return await svc.get_sessions_for_class(class_id)
+
+
+@router.delete("/sessions/{session_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_session(
+    session_id: int,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    await svc.delete_session(session_id)
+
+
+@router.get("/sessions/{session_id}/attendance", response_model=list[AttendanceOut])
+async def list_session_attendance(
+    session_id: int,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    return await svc.get_session_attendance(session_id)
+
+
+@router.post("/sessions/{session_id}/attendance", response_model=AttendanceOut, status_code=status.HTTP_201_CREATED)
+async def create_attendance(
+    session_id: int,
+    body: AttendanceCreate,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    return await svc.create_attendance(session_id, body)
+
+
+@router.patch("/attendance/{attendance_id}", response_model=AttendanceOut)
+async def update_attendance(
+    attendance_id: int,
+    body: AttendanceUpdate,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    return await svc.update_attendance(attendance_id, body)
+
+
+@router.delete("/attendance/{attendance_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_attendance(
+    attendance_id: int,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    await svc.delete_attendance(attendance_id)

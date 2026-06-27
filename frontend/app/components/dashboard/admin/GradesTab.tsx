@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useApiFetch } from "@/app/hooks/useApiFetch";
+import { useAdminSection } from "@/app/context/AdminSectionContext";
 import { ApiError } from "@/app/lib/api";
 
 interface Student { id: number; fname: string; lname: string; }
@@ -18,6 +19,7 @@ const emptyEdit = { score: "", max_score: "", type: "SAT", exam_date: "" };
 
 export default function GradesTab() {
 	const apiFetch = useApiFetch();
+	const { navigateTo } = useAdminSection();
 	const [students,        setStudents]        = useState<Student[]>([]);
 	const [classes,         setClasses]         = useState<Class[]>([]);
 	const [loading,         setLoading]         = useState(true);
@@ -290,7 +292,12 @@ export default function GradesTab() {
 												<td className="py-2.5 pr-4 text-[#0D0F14]">{g.score}</td>
 												<td className="py-2.5 pr-4 text-[#0D0F14]/60">{g.max_score}</td>
 												<td className="py-2.5 pr-4 text-[#0D0F14]/60">{g.exam_date}</td>
-												<td className="py-2.5 text-[#0D0F14]/60">{cls?.class_name ?? "—"}</td>
+												<td className="py-2.5 text-[#0D0F14]/60" onClick={e => e.stopPropagation()}>
+														{cls
+															? <button onClick={() => navigateTo("classes", cls.id)} className="text-[#D4AF37] hover:underline font-medium">{cls.class_name}</button>
+															: "—"
+														}
+													</td>
 											</tr>
 										);
 									})}

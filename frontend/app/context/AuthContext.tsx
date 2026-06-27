@@ -3,7 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-type UserRole = "admin" | "parent";
+type UserRole = "admin" | "parent" | "teacher";
 
 export interface AuthUser {
   id: number;
@@ -146,15 +146,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const login = async (username: string, password: string): Promise<AuthUser> => {
-    const res = await fetch(`${API}/login`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
+    let res: Response;
+    try {
+      res = await fetch(`${API}/login`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+    } catch {
+      throw new Error("Unable to reach the server. Please try again later.");
+    }
     if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail ?? "Login failed");
+      const fallback = res.status >= 500
+        ? "Service unavailable. Please try again later."
+        : "Login failed. Please check your credentials.";
+      let detail = fallback;
+      try { detail = (await res.json()).detail ?? fallback; } catch { /* non-JSON error body */ }
+      throw new Error(detail);
     }
     const { access_token } = await res.json();
     const profile = await fetchMe(access_token);

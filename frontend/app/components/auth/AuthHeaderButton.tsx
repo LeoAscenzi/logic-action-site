@@ -13,7 +13,7 @@ export default function AuthHeaderButton() {
         href="/get-started#consultation"
         className="rounded-lg bg-[var(--gold)] px-4 py-2 text-sm font-semibold text-[var(--ink)] hover:bg-[var(--gold-light)] transition-colors whitespace-nowrap"
       >
-        Book a Consult
+        Book a Consultation
       </Link>
     );
   }

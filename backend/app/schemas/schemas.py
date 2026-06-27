@@ -102,6 +102,7 @@ class ClassOut(BaseModel):
     start_date: date
     end_date: date
     capacity: int
+    teacher_id: Optional[int] = None
 
     model_config = {"from_attributes": True}
 
@@ -112,6 +113,7 @@ class ClassUpdate(BaseModel):
     start_date: Optional[date] = None
     end_date: Optional[date] = None
     capacity: Optional[int] = None
+    teacher_id: Optional[int] = None
 
 
 class BulkDeleteBody(BaseModel):
@@ -134,7 +136,78 @@ class SessionOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# Enrollments
+class ClassEnrollmentCreate(BaseModel):
+    student_id: int
+
+
+class ClassEnrollmentOut(BaseModel):
+    id: int
+    class_id: int
+    student_id: int
+
+    model_config = {"from_attributes": True}
+
+
+class StudentDetailOut(BaseModel):
+    id: int
+    fname: str
+    lname: str
+    parent_id: Optional[int]
+    parent_fname: Optional[str]
+    parent_lname: Optional[str]
+    enrolled_classes: list[ClassOut]
+    exam_count: int
+
+
+# Teachers
+class TeacherCreate(BaseModel):
+    username: str
+    fname: str
+    lname: str
+    email: str
+    password: str
+
+
+# Homework
+class HomeworkCreate(BaseModel):
+    student_id: int
+    class_id: int
+    title: Optional[str] = None
+    score: float
+    max_score: float
+    due_date: Optional[date] = None
+
+
+class HomeworkUpdate(BaseModel):
+    title: Optional[str] = None
+    score: Optional[float] = None
+    max_score: Optional[float] = None
+    due_date: Optional[date] = None
+
+
+class HomeworkOut(BaseModel):
+    id: int
+    student_id: int
+    class_id: int
+    title: Optional[str]
+    score: float
+    max_score: float
+    due_date: Optional[date]
+
+    model_config = {"from_attributes": True}
+
+
 # Attendance
+class AttendanceCreate(BaseModel):
+    student_id: int
+    participation_score: Optional[int] = None
+
+
+class AttendanceUpdate(BaseModel):
+    participation_score: Optional[int] = None
+
+
 class AttendanceRecord(BaseModel):
     student_id: int
     participation_score: Optional[int] = None

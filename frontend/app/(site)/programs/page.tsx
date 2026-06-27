@@ -4,7 +4,7 @@ import ProgramCard from "@/app/components/cards/ProgramCard";
 import { getPrograms, Program } from "@/app/lib/getPrograms";
 
 export default async function ProgramsPage() {
-	const programs: Program[] = await getPrograms("en");
+	const programs: Program[] = await getPrograms();
 
 	return (
 		<div>

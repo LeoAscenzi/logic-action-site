@@ -16,16 +16,16 @@ export default async function Home() {
 			<Section variant="navy">
 				<div className="flex flex-col items-center text-center pt-18 pb-10 px-8">
 					<span className="eyebrow tracking-[0.22em] w-full !flex flex-wrap justify-center">
-						<span className="whitespace-nowrap">NYC Test Prep</span>
+						<span className="whitespace-nowrap">Test Prep</span>
 					{"  ·  "}
 					<span className="whitespace-nowrap">College Advisory</span>
-					{"  ·  "}
-					<span className="whitespace-nowrap">Academic Support</span>
+					
+					<span className="whitespace-nowrap">{"  ·  "}Academic Support</span>
 					</span>
 
 					<div className="font-playfair text-5xl lg:text-7xl font-semibold leading-tight max-w-[500px] pb-4">
-						<span className="text-white">Results.</span>{" "}
-						<span className="text-[var(--gold)]">Not Promises.</span>
+						<div><span className="text-white">Results.</span>{" "}</div>
+						<div><span className="text-[var(--gold)]">Not Promises.</span></div>
 					</div>
 
 					<p className="text-body text-cream-dim max-w-2xl leading-relaxed pb-6">
@@ -43,7 +43,7 @@ export default async function Home() {
 							href="/get-started#consultation"
 							className="rounded-3xl border border-[var(--gold)] px-7 py-3 text-sm font-semibold text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--ink)] transition-colors whitespace-nowrap"
 						>
-							Book a Free Consultation
+							Book a Consultation
 						</Link>
 					</div>
 				</div>

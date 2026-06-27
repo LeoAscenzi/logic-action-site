@@ -7,10 +7,6 @@ export type Mentor = {
     tags: string[];
 };
 
-export async function getMentors(locale: string): Promise<Mentor[]> {
-    switch (locale) {
-        case "en":
-        default:
-            return (await import("@/data/mentors/en")).mentors;
-    }
+export async function getMentors(): Promise<Mentor[]> {
+    return (await import("@/data/mentors/en")).mentors;
 }

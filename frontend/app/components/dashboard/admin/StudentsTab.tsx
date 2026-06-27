@@ -1,18 +1,78 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useApiFetch } from "@/app/hooks/useApiFetch";
+import { useAdminSection } from "@/app/context/AdminSectionContext";
 import { ApiError } from "@/app/lib/api";
 
 interface Student { id: number; fname: string; lname: string; parent_id: number | null; }
 interface Parent  { id: number; fname: string; lname: string; username: string; }
+interface EnrolledClass { id: number; class_name: string; }
+interface StudentDetail {
+	id: number; fname: string; lname: string;
+	parent_id: number | null; parent_fname: string | null; parent_lname: string | null;
+	enrolled_classes: EnrolledClass[];
+	exam_count: number;
+}
 
 type Action = "create-student" | "assign-parent" | null;
 
 const inputCls = "rounded-lg border border-[#D4AF37]/60 bg-white/70 px-3 py-2 text-sm text-[#0D0F14] placeholder:text-[#0D0F14]/40 focus:outline-none focus:ring-1 focus:ring-[#D4AF37]";
 const btnCls   = "rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-semibold text-[#0D0F14] hover:bg-[#c4a230] transition-colors";
 
+function StudentDetailPanel({ studentId, onBack }: { studentId: number; onBack: () => void }) {
+	const apiFetch = useApiFetch();
+	const [detail,  setDetail]  = useState<StudentDetail | null>(null);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		apiFetch<StudentDetail>(`/admin/students/${studentId}`)
+			.then(setDetail)
+			.finally(() => setLoading(false));
+	}, [studentId]);  // eslint-disable-line react-hooks/exhaustive-deps
+
+	if (loading) return <p className="p-6 text-[#0D0F14]/50">Loading…</p>;
+	if (!detail)  return <p className="p-6 text-[#0D0F14]/50">Student not found.</p>;
+
+	return (
+		<div className="flex flex-col min-h-[calc(100vh-56px)] md:min-h-screen">
+			<div className="border-b border-[#d4c9b0] bg-[#ede8df] px-6 py-3 flex items-center gap-3 shrink-0">
+				<button onClick={onBack} className="text-[#5b6072] hover:text-[#0D0F14] transition-colors text-sm">← All Students</button>
+			</div>
+			<div className="flex-1 p-6 overflow-auto flex flex-col gap-6">
+				<nav className="flex items-center gap-1.5 text-sm text-[#0D0F14]/50">
+					<button onClick={onBack} className="hover:text-[#D4AF37] transition-colors">All Students</button>
+					<span>/</span>
+					<span className="text-[#0D0F14] font-medium">{detail.fname} {detail.lname}</span>
+				</nav>
+
+				<div className="bg-white rounded-xl border border-[#D4AF37]/30 p-5 max-w-md flex flex-col gap-2">
+					<h2 className="text-lg font-semibold text-[#0D0F14]">{detail.fname} {detail.lname}</h2>
+					<p className="text-sm text-[#0D0F14]/60">
+						Parent: {detail.parent_fname ? `${detail.parent_fname} ${detail.parent_lname}` : <span className="text-[#0D0F14]/30">None assigned</span>}
+					</p>
+					<p className="text-sm text-[#0D0F14]/60">Exams on record: {detail.exam_count}</p>
+				</div>
+
+				<div>
+					<h3 className="font-semibold text-[#D4AF37] tracking-wide text-sm uppercase mb-3">Enrolled Classes</h3>
+					{detail.enrolled_classes.length === 0 ? (
+						<p className="text-[#0D0F14]/50 text-sm">Not enrolled in any classes.</p>
+					) : (
+						<ul className="flex flex-col gap-2 max-w-sm">
+							{detail.enrolled_classes.map(c => (
+								<li key={c.id} className="bg-white rounded-lg border border-[#D4AF37]/20 px-4 py-2.5 text-sm font-medium text-[#0D0F14]">{c.class_name}</li>
+							))}
+						</ul>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+}
+
 export default function StudentsTab() {
 	const apiFetch = useApiFetch();
+	const { selectedId, navigateTo } = useAdminSection();
 	const [students, setStudents] = useState<Student[]>([]);
 	const [parents,  setParents]  = useState<Parent[]>([]);
 	const [loading,  setLoading]  = useState(true);
@@ -118,6 +178,8 @@ export default function StudentsTab() {
 		}
 	};
 
+	if (selectedId) return <StudentDetailPanel studentId={selectedId} onBack={() => navigateTo("students")} />;
+
 	if (loading) return <p className="p-6 text-[#0D0F14]/50">Loading…</p>;
 
 	return (
@@ -207,7 +269,8 @@ export default function StudentsTab() {
 									</th>
 									<th className="py-2 pr-4 text-[#0D0F14]/50 font-medium">ID</th>
 									<th className="py-2 pr-4 text-[#0D0F14]/50 font-medium">Name</th>
-									<th className="py-2 text-[#0D0F14]/50 font-medium">Parent</th>
+									<th className="py-2 pr-4 text-[#0D0F14]/50 font-medium">Parent</th>
+									<th className="py-2 text-[#0D0F14]/50 font-medium"></th>
 								</tr>
 							</thead>
 							<tbody>
@@ -233,7 +296,10 @@ export default function StudentsTab() {
 											</td>
 											<td className="py-2.5 pr-4 text-[#0D0F14]/40 text-xs">{s.id}</td>
 											<td className="py-2.5 pr-4 font-medium text-[#0D0F14]">{s.fname} {s.lname}</td>
-											<td className="py-2.5 text-[#0D0F14]/60">{parent ? `${parent.fname} ${parent.lname}` : "—"}</td>
+											<td className="py-2.5 pr-4 text-[#0D0F14]/60">{parent ? `${parent.fname} ${parent.lname}` : "—"}</td>
+											<td className="py-2.5">
+												<button onClick={e => { e.stopPropagation(); navigateTo("students", s.id); }} className="text-xs text-[#D4AF37] hover:underline font-medium">View →</button>
+											</td>
 										</tr>
 									);
 								})}

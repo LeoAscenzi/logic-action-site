@@ -3,7 +3,7 @@ import NavDropdown from "./navDropdown";
 
 export default function Navbar() {
     return (
-        <div className="flex items-center gap-x-3">
+        <div className="flex items-center gap-x-1.5 xl:gap-x-3">
             <Navlink url="/"           text="Home" />
             <Navlink url="/programs"   text="Programs" />
             <Navlink url="/mentors"    text="Mentors" />

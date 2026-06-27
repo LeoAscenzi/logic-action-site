@@ -9,6 +9,7 @@ const ADMIN_SECTIONS = [
 	{ key: "students" as const, label: "Students" },
 	{ key: "classes"  as const, label: "Classes"  },
 	{ key: "grades"   as const, label: "Grades"   },
+	{ key: "teachers" as const, label: "Teachers" },
 ];
 
 export default function DashboardSidebar() {
@@ -17,7 +18,8 @@ export default function DashboardSidebar() {
 	const pathname                = usePathname();
 	const { section, setSection } = useAdminSection();
 
-	const isAdminPage = pathname.includes("/dashboard/admin");
+	const isAdminPage   = pathname.includes("/dashboard/admin");
+	const isTeacherPage = pathname.includes("/dashboard/teacher");
 
 	const handleLogout = async () => {
 		await logout();
@@ -65,6 +67,18 @@ export default function DashboardSidebar() {
 						className="rounded-lg px-3 py-2 text-[#f5f0e8]/80 hover:text-[#D4AF37] hover:bg-white/5 transition-colors"
 					>
 						My Students
+					</Link>
+				)}
+				{user?.role === "teacher" && (
+					<Link
+						href="/dashboard/teacher"
+						className={`rounded-lg px-3 py-2 transition-colors ${
+							isTeacherPage
+								? "bg-[#D4AF37]/15 text-[#D4AF37] font-medium"
+								: "text-[#f5f0e8]/80 hover:text-[#D4AF37] hover:bg-white/5"
+						}`}
+					>
+						My Classes
 					</Link>
 				)}
 			</nav>

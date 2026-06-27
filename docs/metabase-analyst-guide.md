@@ -12,6 +12,30 @@ Metabase is a free, open-source BI tool that lets you write SQL queries and buil
 
 ---
 
+## Admin: Create the `analyst_ro` Database User
+
+> **One-time setup — admin only.** This only needs to be done once per database volume. Skip this if `analyst_ro` already exists.
+
+With the DB container running:
+
+```bash
+docker compose exec db psql -U postgres -d logicaction
+```
+
+```sql
+CREATE ROLE analyst_ro WITH LOGIN PASSWORD 'choose-a-strong-password';
+GRANT CONNECT ON DATABASE logicaction TO analyst_ro;
+GRANT USAGE ON SCHEMA public TO analyst_ro;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO analyst_ro;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO analyst_ro;
+```
+
+The `ALTER DEFAULT PRIVILEGES` line ensures future tables added by Alembic migrations are automatically readable without re-running grants.
+
+Share the password with analysts via a secure channel (not Slack/email plain text). They'll enter it in the Metabase connection wizard in Step 3.
+
+---
+
 ## Step 1 — Start Metabase
 
 ### Option A: Add to the project Docker stack (recommended if you have the repo)

@@ -4,7 +4,7 @@ import MentorCard from "@/app/components/cards/MentorCard";
 import { getMentors } from "@/app/lib/getMentors";
 
 export default async function MentorsPage() {
-	const mentors = await getMentors("en");
+	const mentors = await getMentors();
 
 	return (
 		<div>

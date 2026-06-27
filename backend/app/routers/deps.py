@@ -38,3 +38,9 @@ async def require_parent(user: User = Depends(get_current_user)) -> User:
     if user.role != UserRole.parent:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Parent access required")
     return user
+
+
+async def require_teacher(user: User = Depends(get_current_user)) -> User:
+    if user.role != UserRole.teacher:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Teacher access required")
+    return user

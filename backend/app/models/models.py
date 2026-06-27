@@ -19,8 +19,9 @@ from app.db.base import Base
 
 
 class UserRole(str, enum.Enum):
-    admin = "admin"
-    parent = "parent"
+    admin   = "admin"
+    parent  = "parent"
+    teacher = "teacher"
 
 
 class ExamType(str, enum.Enum):
@@ -56,6 +57,7 @@ class Student(Base):
     parent_user: Mapped["User | None"] = relationship(back_populates="students")
     exams: Mapped[list["Exam"]] = relationship(back_populates="student")
     attendances: Mapped[list["ClassAttendance"]] = relationship(back_populates="student")
+    enrollments: Mapped[list["ClassEnrollment"]] = relationship(back_populates="student")
 
 
 class Class(Base):
@@ -67,9 +69,13 @@ class Class(Base):
     start_date: Mapped[date] = mapped_column(Date, nullable=False)
     end_date: Mapped[date] = mapped_column(Date, nullable=False)
     capacity: Mapped[int] = mapped_column(Integer, nullable=False)
+    teacher_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
 
+    teacher: Mapped["User | None"] = relationship(foreign_keys=[teacher_id])
     sessions: Mapped[list["ClassSession"]] = relationship(back_populates="class_")
     exams: Mapped[list["Exam"]] = relationship(back_populates="class_")
+    homework: Mapped[list["Homework"]] = relationship(back_populates="class_")
+    enrollments: Mapped[list["ClassEnrollment"]] = relationship(back_populates="class_", cascade="all, delete-orphan")
 
 
 class ClassSession(Base):
@@ -109,6 +115,32 @@ class Exam(Base):
 
     student: Mapped["Student"] = relationship(back_populates="exams")
     class_: Mapped["Class | None"] = relationship(back_populates="exams")
+
+
+class Homework(Base):
+    __tablename__ = "homework"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    student_id: Mapped[int] = mapped_column(ForeignKey("students.id"), nullable=False)
+    class_id: Mapped[int] = mapped_column(ForeignKey("classes.id"), nullable=False)
+    title: Mapped[str | None] = mapped_column(String(256), nullable=True)
+    score: Mapped[float] = mapped_column(Numeric(6, 2), nullable=False)
+    max_score: Mapped[float] = mapped_column(Numeric(6, 2), nullable=False)
+    due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+
+    student: Mapped["Student"] = relationship()
+    class_: Mapped["Class"] = relationship(back_populates="homework")
+
+
+class ClassEnrollment(Base):
+    __tablename__ = "class_enrollments"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    class_id: Mapped[int] = mapped_column(ForeignKey("classes.id", ondelete="CASCADE"), nullable=False)
+    student_id: Mapped[int] = mapped_column(ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
+
+    class_: Mapped["Class"] = relationship(back_populates="enrollments")
+    student: Mapped["Student"] = relationship(back_populates="enrollments")
 
 
 class RefreshToken(Base):
