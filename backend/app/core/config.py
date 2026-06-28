@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     ALLOWED_ORIGINS: str = "http://localhost:3000"  # comma-separated in prod
     ENVIRONMENT: str = "dev"
+    COOKIE_DOMAIN: str | None = None
 
     @property
     def secure_cookies(self) -> bool:

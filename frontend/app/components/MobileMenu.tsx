@@ -1,9 +1,10 @@
 "use client";
 import Image from "next/image";
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/app/context/AuthContext";
 
 const LINKS = [
 	{ url: "/",          label: "Home"       },
@@ -19,10 +20,13 @@ const GET_STARTED_SUB = [
 	{ url: "/get-started#consultation", label: "Book a Consultation", sub: "Free 1:1 with an expert", gold: false },
 ];
 
+const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL ?? "http://localhost:3001";
+
 export default function MobileMenu() {
 	const [open, setOpen]       = useState(false);
 	const [mounted, setMounted] = useState(false);
 	const pathname              = usePathname();
+	const { user, logout }      = useAuth();
 
 	// Wait for client mount before portal is available
 	useEffect(() => { setMounted(true); }, []); // eslint-disable-line react-hooks/set-state-in-effect
@@ -103,15 +107,32 @@ export default function MobileMenu() {
 
 			</nav>
 
-			{/* Book a Consult CTA */}
+			{/* Bottom CTA */}
 			<div className="px-6 py-10 shrink-0">
-				<Link
-					href="/get-started#consultation"
-					onClick={close}
-					className="block w-full text-center rounded-xl bg-[var(--gold)] py-4 font-semibold text-[var(--ink)] hover:bg-[var(--gold-light)] transition-colors"
-				>
-					Book a Consult
-				</Link>
+				{user ? (
+					<div className="flex flex-col gap-3">
+						<a
+							href={`${DASHBOARD_URL}/dashboard/${user.role}`}
+							className="block w-full text-center rounded-xl border border-[var(--gold)] py-4 font-semibold text-[var(--gold)] hover:bg-[var(--gold)]/10 transition-colors"
+						>
+							{user.fname} {user.lname}
+						</a>
+						<button
+							onClick={() => { logout(); close(); }}
+							className="block w-full text-center rounded-xl bg-[var(--gold)] py-4 font-semibold text-[var(--ink)] hover:bg-[var(--gold-light)] transition-colors"
+						>
+							Log Out
+						</button>
+					</div>
+				) : (
+					<Link
+						href="/get-started#consultation"
+						onClick={close}
+						className="block w-full text-center rounded-xl bg-[var(--gold)] py-4 font-semibold text-[var(--ink)] hover:bg-[var(--gold-light)] transition-colors"
+					>
+						Book a Consult
+					</Link>
+				)}
 			</div>
 
 		</div>

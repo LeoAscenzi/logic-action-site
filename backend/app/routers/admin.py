@@ -17,6 +17,9 @@ from app.schemas.schemas import (
     ClassEnrollmentOut,
     ClassOut,
     ClassUpdate,
+    EventCreate,
+    EventOut,
+    EventUpdate,
     ExamCreate,
     ExamOut,
     ExamUpdate,
@@ -30,6 +33,7 @@ from app.schemas.schemas import (
     UserOut,
 )
 from app.services.class_service import ClassService
+from app.services.event_service import EventService
 from app.services.exam_service import ExamService
 from app.services.student_service import StudentService
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -320,3 +324,31 @@ async def delete_attendance(
     svc: ClassService = Depends(ClassService),
 ):
     await svc.delete_attendance(attendance_id)
+
+
+@router.post("/events", response_model=EventOut, status_code=status.HTTP_201_CREATED)
+async def create_event(
+    body: EventCreate,
+    _: User = Depends(require_admin),
+    svc: EventService = Depends(EventService),
+):
+    return await svc.create_event(body)
+
+
+@router.patch("/events/{event_id}", response_model=EventOut)
+async def update_event(
+    event_id: int,
+    body: EventUpdate,
+    _: User = Depends(require_admin),
+    svc: EventService = Depends(EventService),
+):
+    return await svc.update_event(event_id, body)
+
+
+@router.delete("/events/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_event(
+    event_id: int,
+    _: User = Depends(require_admin),
+    svc: EventService = Depends(EventService),
+):
+    await svc.delete_event(event_id)

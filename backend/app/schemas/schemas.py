@@ -22,7 +22,12 @@ class ParentRegister(BaseModel):
 
 class TokenResponse(BaseModel):
     access_token: str
+    refresh_token: str | None = None
     token_type: str = "bearer"
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str | None = None
 
 
 # Users
@@ -35,6 +40,11 @@ class UserOut(BaseModel):
     role: UserRole
 
     model_config = {"from_attributes": True}
+
+
+class UserUpdate(BaseModel):
+    fname: Optional[str] = None
+    lname: Optional[str] = None
 
 
 # Students
@@ -223,5 +233,80 @@ class AttendanceOut(BaseModel):
     class_session_id: int
     student_id: int
     participation_score: Optional[int]
+
+    model_config = {"from_attributes": True}
+
+
+# Community Posts
+class CommunityPostCreate(BaseModel):
+    title: str
+    content: str
+
+
+class CommunityPostUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+
+
+class CommentCreate(BaseModel):
+    content: str
+
+
+class CommentOut(BaseModel):
+    id: int
+    post_id: int
+    author_id: int
+    author_fname: str
+    author_lname: str
+    author_role: str
+    content: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class CommunityPostOut(BaseModel):
+    id: int
+    author_id: int
+    author_fname: str
+    author_lname: str
+    author_role: str
+    title: str
+    content: str
+    created_at: datetime
+    updated_at: datetime
+    comment_count: int
+
+    model_config = {"from_attributes": True}
+
+
+class CommunityPostDetailOut(CommunityPostOut):
+    comments: list[CommentOut] = []
+
+
+# Events
+class EventCreate(BaseModel):
+    title: str
+    event_date: date
+    location: Optional[str] = None
+    description: Optional[str] = None
+    current_capacity: Optional[int] = None
+
+
+class EventUpdate(BaseModel):
+    title: Optional[str] = None
+    event_date: Optional[date] = None
+    location: Optional[str] = None
+    description: Optional[str] = None
+    current_capacity: Optional[int] = None
+
+
+class EventOut(BaseModel):
+    id: int
+    title: str
+    event_date: date
+    location: Optional[str]
+    description: Optional[str]
+    current_capacity: Optional[int]
 
     model_config = {"from_attributes": True}
