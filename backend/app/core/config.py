@@ -21,6 +21,19 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "dev"
     COOKIE_DOMAIN: str | None = None
 
+    STORAGE_BACKEND: str = "local"  # "local" or "s3"
+    S3_BUCKET: str = ""
+    AWS_REGION: str = "us-east-2"
+    AWS_ACCESS_KEY_ID: str = ""
+    AWS_SECRET_ACCESS_KEY: str = ""
+
+    EMAIL_HOST: str = "smtp.gmail.com"
+    EMAIL_PORT: int = 587
+    EMAIL_USERNAME: str = ""   # empty = email disabled (dev)
+    EMAIL_PASSWORD: str = ""
+    EMAIL_FROM: str = ""
+    SITE_URL: str = "http://localhost:3000"  # used in invite/notification links
+
     @model_validator(mode="after")
     def build_database_url(self) -> "Settings":
         if not self.DATABASE_URL:

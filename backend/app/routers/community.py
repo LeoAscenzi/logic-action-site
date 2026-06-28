@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.models.models import User
+from app.models.models import Event, EventRegistration, User
 from app.routers.deps import get_current_user
 from app.schemas.schemas import (
 	CommentCreate,
@@ -15,10 +15,13 @@ from app.schemas.schemas import (
 	CommunityPostOut,
 	CommunityPostUpdate,
 	EventOut,
+	EventRsvpIn,
+	EventRsvpOut,
 	MyCommentOut,
 	PublicUserOut,
 )
 from app.services.community_service import CommunityService
+from app.services.email_service import send_rsvp_admin_notification, send_rsvp_confirmation
 from app.services.event_service import EventService
 
 router = APIRouter(prefix="/community", tags=["community"])
@@ -122,7 +125,6 @@ async def delete_comment(
 
 @router.get("/events", response_model=list[EventOut])
 async def list_events(
-	_: User = Depends(get_current_user),
 	svc: EventService = Depends(EventService),
 ):
 	return await svc.list_events()
@@ -131,7 +133,38 @@ async def list_events(
 @router.get("/events/{event_id}", response_model=EventOut)
 async def get_event(
 	event_id: int,
-	_: User = Depends(get_current_user),
 	svc: EventService = Depends(EventService),
 ):
 	return await svc.get_event(event_id)
+
+
+@router.post("/events/{event_id}/rsvp", response_model=EventRsvpOut, status_code=status.HTTP_201_CREATED)
+async def rsvp_event(
+	event_id: int,
+	body: EventRsvpIn,
+	db: AsyncSession = Depends(get_db),
+):
+	result = await db.execute(select(Event).where(Event.id == event_id, Event.is_deleted == False))  # noqa: E712
+	event = result.scalar_one_or_none()
+	if not event:
+		raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+
+	existing = await db.execute(
+		select(EventRegistration).where(
+			EventRegistration.event_id == event_id,
+			EventRegistration.email == body.email,
+		)
+	)
+	if existing.scalar_one_or_none():
+		raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Already registered for this event")
+
+	reg = EventRegistration(event_id=event_id, name=body.name, email=body.email)
+	db.add(reg)
+	await db.commit()
+	await db.refresh(reg)
+
+	event_date_str = event.event_date.strftime("%B %-d, %Y")
+	await send_rsvp_confirmation(body.email, body.name, event.title, event_date_str)
+	await send_rsvp_admin_notification(event.title, body.name, body.email)
+
+	return reg

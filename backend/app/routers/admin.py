@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import datetime, timedelta, timezone
+
+from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, status
 
 from sqlalchemy import select
 
+from app.core.security import create_invite_token, hash_password
 from app.db.session import get_db
-from app.core.security import hash_password
-from app.models.models import InvoiceStatus, User, UserRole
+from app.models.models import EventRegistration, Invite, InvoiceStatus, User, UserRole
 from app.routers.deps import require_admin
 from app.schemas.schemas import (
     AttendanceCreate,
@@ -19,6 +21,7 @@ from app.schemas.schemas import (
     ClassUpdate,
     EventCreate,
     EventOut,
+    EventRsvpOut,
     EventUpdate,
     ExamCreate,
     ExamOut,
@@ -26,6 +29,8 @@ from app.schemas.schemas import (
     InvoiceCreate,
     InvoiceOut,
     InvoiceUpdate,
+    InviteCreate,
+    InviteOut,
     PaymentCreate,
     PaymentOut,
     SessionCreate,
@@ -36,10 +41,13 @@ from app.schemas.schemas import (
     StudentDetailOut,
     StudentOut,
     TeacherCreate,
+    UploadOut,
     UserOut,
 )
 from app.services.class_service import ClassService
+from app.services.email_service import send_invite
 from app.services.event_service import EventService
+from app.services.storage import upload_file as storage_upload
 from app.services.exam_service import ExamService
 from app.services.payment_service import PaymentService
 from app.services.student_service import StudentService
@@ -438,6 +446,16 @@ async def get_balance(
     return await svc.get_student_balance(student_id)
 
 
+@router.post("/upload", response_model=UploadOut)
+async def upload(
+    request: Request,
+    file: UploadFile = File(...),
+    _: User = Depends(require_admin),
+):
+    url = await storage_upload(file, str(request.base_url))
+    return UploadOut(url=url)
+
+
 @router.post("/events", response_model=EventOut, status_code=status.HTTP_201_CREATED)
 async def create_event(
     body: EventCreate,
@@ -464,3 +482,58 @@ async def delete_event(
     svc: EventService = Depends(EventService),
 ):
     await svc.delete_event(event_id)
+
+
+@router.get("/events/{event_id}/registrations", response_model=list[EventRsvpOut])
+async def list_event_registrations(
+    event_id: int,
+    _: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(EventRegistration)
+        .where(EventRegistration.event_id == event_id)
+        .order_by(EventRegistration.created_at)
+    )
+    return result.scalars().all()
+
+
+# ── Invites ──────────────────────────────────────────────────────────────────
+
+@router.post("/invites", response_model=InviteOut, status_code=status.HTTP_201_CREATED)
+async def create_invite(
+    body: InviteCreate,
+    _: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    expires_at = datetime.now(timezone.utc) + timedelta(days=body.expires_days)
+    token = create_invite_token(body.email, body.role.value, body.expires_days)
+    invite = Invite(token=token, email=body.email, role=body.role, expires_at=expires_at)
+    db.add(invite)
+    await db.commit()
+    await db.refresh(invite)
+    await send_invite(body.email, body.role.value, token, body.expires_days)
+    return invite
+
+
+@router.get("/invites", response_model=list[InviteOut])
+async def list_invites(
+    _: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Invite).order_by(Invite.created_at.desc()))
+    return result.scalars().all()
+
+
+@router.delete("/invites/{invite_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_invite(
+    invite_id: int,
+    _: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Invite).where(Invite.id == invite_id))
+    invite = result.scalar_one_or_none()
+    if not invite:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invite not found")
+    await db.delete(invite)
+    await db.commit()

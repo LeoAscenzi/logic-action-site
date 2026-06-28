@@ -32,5 +32,14 @@ def create_refresh_token(subject: str) -> str:
     )
 
 
+def create_invite_token(email: str, role: str, expires_days: int) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(days=expires_days)
+    return jwt.encode(
+        {"sub": email, "role": role, "type": "invite", "exp": expire},
+        settings.SECRET_KEY,
+        algorithm=settings.ALGORITHM,
+    )
+
+
 def decode_token(token: str) -> dict:
     return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])

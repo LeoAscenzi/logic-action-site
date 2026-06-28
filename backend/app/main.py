@@ -1,5 +1,8 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.routers import auth, admin, parent, teacher, community
@@ -14,6 +17,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+if settings.STORAGE_BACKEND == "local":
+    media_dir = Path("media")
+    media_dir.mkdir(exist_ok=True)
+    app.mount("/media", StaticFiles(directory="media"), name="media")
 
 app.include_router(auth.router)
 app.include_router(admin.router)

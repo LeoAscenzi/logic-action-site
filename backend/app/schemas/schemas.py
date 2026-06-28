@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, time
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr
@@ -12,11 +12,11 @@ class LoginRequest(BaseModel):
     password: str
 
 
-class ParentRegister(BaseModel):
+class RegisterWithInvite(BaseModel):
+    token: str
     username: str
     fname: str
     lname: str
-    email: str
     password: str
 
 
@@ -38,6 +38,10 @@ class UserOut(BaseModel):
     lname: str
     email: str
     role: UserRole
+    avatar_url: Optional[str] = None
+    email_grades: bool = True
+    email_announcements: bool = True
+    email_events: bool = True
 
     model_config = {"from_attributes": True}
 
@@ -45,6 +49,10 @@ class UserOut(BaseModel):
 class UserUpdate(BaseModel):
     fname: Optional[str] = None
     lname: Optional[str] = None
+    avatar_url: Optional[str] = None
+    email_grades: Optional[bool] = None
+    email_announcements: Optional[bool] = None
+    email_events: Optional[bool] = None
 
 
 class PublicUserOut(BaseModel):
@@ -382,16 +390,22 @@ class StudentBalanceOut(BaseModel):
 class EventCreate(BaseModel):
     title: str
     event_date: date
+    event_time: Optional[time] = None
+    event_timezone: Optional[str] = None
     location: Optional[str] = None
     description: Optional[str] = None
+    image_url: Optional[str] = None
     current_capacity: Optional[int] = None
 
 
 class EventUpdate(BaseModel):
     title: Optional[str] = None
     event_date: Optional[date] = None
+    event_time: Optional[time] = None
+    event_timezone: Optional[str] = None
     location: Optional[str] = None
     description: Optional[str] = None
+    image_url: Optional[str] = None
     current_capacity: Optional[int] = None
 
 
@@ -399,8 +413,53 @@ class EventOut(BaseModel):
     id: int
     title: str
     event_date: date
+    event_time: Optional[time]
+    event_timezone: Optional[str]
     location: Optional[str]
     description: Optional[str]
+    image_url: Optional[str]
     current_capacity: Optional[int]
 
     model_config = {"from_attributes": True}
+
+
+class UploadOut(BaseModel):
+    url: str
+
+
+# Event RSVPs
+class EventRsvpIn(BaseModel):
+    name: str
+    email: EmailStr
+
+
+class EventRsvpOut(BaseModel):
+    id: int
+    event_id: int
+    name: str
+    email: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+# Invites
+class InviteCreate(BaseModel):
+    email: EmailStr
+    role: UserRole = UserRole.parent
+    expires_days: int = 7
+
+
+class InviteOut(BaseModel):
+    id: int
+    email: str
+    role: UserRole
+    expires_at: datetime
+    is_used: bool
+
+    model_config = {"from_attributes": True}
+
+
+class InviteValidate(BaseModel):
+    email: str
+    role: UserRole

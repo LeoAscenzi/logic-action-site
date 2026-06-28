@@ -1,5 +1,5 @@
 import enum
-from datetime import date, datetime
+from datetime import date, datetime, time
 
 from sqlalchemy import (
     Boolean,
@@ -11,6 +11,7 @@ from sqlalchemy import (
     Numeric,
     String,
     Text,
+    Time,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -60,6 +61,10 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(256), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(256), nullable=False)
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=False)
+    avatar_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    email_grades: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true", nullable=False)
+    email_announcements: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true", nullable=False)
+    email_events: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true", nullable=False)
 
     students: Mapped[list["Student"]] = relationship(back_populates="parent_user")
     refresh_tokens: Mapped[list["RefreshToken"]] = relationship(back_populates="user")
@@ -213,10 +218,37 @@ class Event(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(256), nullable=False)
     event_date: Mapped[date] = mapped_column(Date, nullable=False)
+    event_time: Mapped[time | None] = mapped_column(Time, nullable=True)
+    event_timezone: Mapped[str | None] = mapped_column(String(64), nullable=True)
     location: Mapped[str | None] = mapped_column(String(256), nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     current_capacity: Mapped[int | None] = mapped_column(Integer, nullable=True)
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+
+class EventRegistration(Base):
+    __tablename__ = "event_registrations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    event_id: Mapped[int] = mapped_column(ForeignKey("events.id", ondelete="CASCADE"), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    email: Mapped[str] = mapped_column(String(254), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    event: Mapped["Event"] = relationship()
+
+
+class Invite(Base):
+    __tablename__ = "invites"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    token: Mapped[str] = mapped_column(String(512), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(254), nullable=False)
+    role: Mapped[UserRole] = mapped_column(Enum(UserRole, create_type=False), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    is_used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
 
 class Invoice(Base):
