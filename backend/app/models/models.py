@@ -24,10 +24,9 @@ class UserRole(str, enum.Enum):
     teacher = "teacher"
 
 
-class ExamType(str, enum.Enum):
-    SAT = "SAT"
-    SSAT = "SSAT"
-    AP = "AP"
+class GradeType(str, enum.Enum):
+    homework = "homework"
+    exam = "exam"
 
 
 class User(Base):
@@ -108,9 +107,10 @@ class Exam(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     student_id: Mapped[int] = mapped_column(ForeignKey("students.id"), nullable=False)
     class_id: Mapped[int | None] = mapped_column(ForeignKey("classes.id"), nullable=True)
+    title: Mapped[str] = mapped_column(String(256), nullable=False, default="")
     score: Mapped[float] = mapped_column(Numeric(6, 2), nullable=False)
     max_score: Mapped[float] = mapped_column(Numeric(6, 2), nullable=False)
-    type: Mapped[ExamType] = mapped_column(Enum(ExamType), nullable=False)
+    type: Mapped[GradeType] = mapped_column(Enum(GradeType), nullable=False)
     exam_date: Mapped[date] = mapped_column(Date, nullable=False)
 
     student: Mapped["Student"] = relationship(back_populates="exams")

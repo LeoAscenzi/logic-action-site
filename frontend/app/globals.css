@@ -145,3 +145,12 @@ li::marker  { color: var(--gold); }
 
 .carousel-track       { animation: carousel-scroll 55s linear infinite; }
 .carousel-track:hover { animation-play-state: paused; }
+
+@keyframes comment-flash {
+  0%   { background-color: rgba(201, 168, 76, 0.22); }
+  100% { background-color: transparent; }
+}
+.comment-highlight {
+  animation: comment-flash 2.5s ease-out forwards;
+  border-radius: 12px;
+}

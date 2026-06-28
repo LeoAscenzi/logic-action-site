@@ -74,10 +74,11 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
 	const [post, setPost]               = useState<PostDetail | null>(null);
 	const [fetching, setFetching]       = useState(true);
 	const [notFound, setNotFound]       = useState(false);
-	const [comment, setComment]         = useState("");
-	const [submitting, setSubmitting]   = useState(false);
+	const [comment, setComment]           = useState("");
+	const [submitting, setSubmitting]     = useState(false);
 	const [commentError, setCommentError] = useState("");
-	const [deleting, setDeleting]       = useState(false);
+	const [deleting, setDeleting]         = useState(false);
+	const [deletingComment, setDeletingComment] = useState<number | null>(null);
 
 	const loadPost = async () => {
 		try {
@@ -94,6 +95,16 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
 		if (!user) return;
 		loadPost();
 	}, [user, id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+	useEffect(() => {
+		if (!post) return;
+		const hash = window.location.hash;
+		if (!hash.startsWith("#comment-")) return;
+		const el = document.querySelector(hash);
+		if (!el) return;
+		el.scrollIntoView({ behavior: "smooth", block: "center" });
+		el.classList.add("comment-highlight");
+	}, [post]);
 
 	const handleComment = async (e: FormEvent) => {
 		e.preventDefault();
@@ -114,6 +125,19 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
 		}
 	};
 
+	const handleDeleteComment = async (commentId: number) => {
+		if (!confirm("Delete this comment? This cannot be undone.")) return;
+		setDeletingComment(commentId);
+		try {
+			await apiFetch(`/community/comments/${commentId}`, { method: "DELETE" });
+			await loadPost();
+		} catch {
+			// comment may already be gone
+		} finally {
+			setDeletingComment(null);
+		}
+	};
+
 	const handleDelete = async () => {
 		if (!confirm("Delete this post? This cannot be undone.")) return;
 		setDeleting(true);
@@ -125,7 +149,33 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
 		}
 	};
 
-	if (isLoading) return null;
+	if (isLoading) {
+		return (
+			<div className="bg-[var(--cream)] min-h-screen">
+				<div className="max-w-3xl mx-auto px-4 py-10 animate-pulse">
+					<div className="h-4 w-20 bg-[var(--line)] rounded mb-8" />
+					<div className="bg-white rounded-xl border border-[var(--line)] p-7 mb-8">
+						<div className="h-3 w-32 bg-[var(--line)] rounded mb-4" />
+						<div className="h-6 w-2/3 bg-[var(--line)] rounded mb-4" />
+						<div className="space-y-2">
+							{Array.from({ length: 5 }).map((_, i) => (
+								<div key={i} className={`h-3 bg-[var(--line)] rounded ${i === 4 ? "w-1/2" : "w-full"}`} />
+							))}
+						</div>
+					</div>
+					<div className="h-5 w-28 bg-[var(--line)] rounded mb-4" />
+					<div className="flex flex-col gap-2">
+						{Array.from({ length: 2 }).map((_, i) => (
+							<div key={i} className="bg-white rounded-xl border border-[var(--line)] px-6 py-4">
+								<div className="h-3 w-28 bg-[var(--line)] rounded mb-2" />
+								<div className="h-3 w-full bg-[var(--line)] rounded" />
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	if (!user) {
 		return (
@@ -138,8 +188,28 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
 
 	if (fetching) {
 		return (
-			<div className="flex justify-center py-24">
-				<div className="w-5 h-5 border-2 border-[var(--gold)] border-t-transparent rounded-full animate-spin" />
+			<div className="bg-[var(--cream)] min-h-screen">
+				<div className="max-w-3xl mx-auto px-4 py-10 animate-pulse">
+					<div className="h-4 w-20 bg-[var(--line)] rounded mb-8" />
+					<div className="bg-white rounded-xl border border-[var(--line)] p-7 mb-8">
+						<div className="h-3 w-32 bg-[var(--line)] rounded mb-4" />
+						<div className="h-6 w-2/3 bg-[var(--line)] rounded mb-4" />
+						<div className="space-y-2">
+							{Array.from({ length: 5 }).map((_, i) => (
+								<div key={i} className={`h-3 bg-[var(--line)] rounded ${i === 4 ? "w-1/2" : "w-full"}`} />
+							))}
+						</div>
+					</div>
+					<div className="h-5 w-28 bg-[var(--line)] rounded mb-4" />
+					<div className="flex flex-col gap-2">
+						{Array.from({ length: 2 }).map((_, i) => (
+							<div key={i} className="bg-white rounded-xl border border-[var(--line)] px-6 py-4">
+								<div className="h-3 w-28 bg-[var(--line)] rounded mb-2" />
+								<div className="h-3 w-full bg-[var(--line)] rounded" />
+							</div>
+						))}
+					</div>
+				</div>
 			</div>
 		);
 	}
@@ -206,22 +276,40 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
 
 				{post.comments.length > 0 && (
 					<div className="flex flex-col gap-2 mb-6">
-						{post.comments.map((c) => (
-							<div key={c.id} className="bg-white rounded-xl border border-[var(--line)] shadow-sm px-6 py-4">
-								<p className="text-xs text-[var(--ink-soft)] mb-1 flex items-center">
-									<Link
-										href={`/community/member/${c.author_id}`}
-										className="hover:text-[var(--ink)] hover:underline transition-colors"
-									>
-										{c.author_fname} {c.author_lname}
-									</Link>
-									<RoleBadge role={c.author_role} />
-									<span className="mx-1.5">·</span>
-									{relativeTime(c.created_at)}
-								</p>
-								<p className="text-sm text-[var(--ink)] leading-relaxed">{c.content}</p>
-							</div>
-						))}
+						{post.comments.map((c) => {
+							const canDeleteComment = user.id === c.author_id || user.role === "admin";
+							return (
+								<div
+									key={c.id}
+									id={`comment-${c.id}`}
+									className="bg-white rounded-xl border border-[var(--line)] shadow-sm px-6 py-4 scroll-mt-8"
+								>
+									<div className="flex items-start justify-between mb-1">
+										<p className="text-xs text-[var(--ink-soft)] flex items-center">
+											<Link
+												href={`/community/member/${c.author_id}`}
+												className="hover:text-[var(--ink)] hover:underline transition-colors"
+											>
+												{c.author_fname} {c.author_lname}
+											</Link>
+											<RoleBadge role={c.author_role} />
+											<span className="mx-1.5">·</span>
+											{relativeTime(c.created_at)}
+										</p>
+										{canDeleteComment && (
+											<button
+												onClick={() => handleDeleteComment(c.id)}
+												disabled={deletingComment === c.id}
+												className="text-xs text-red-400 hover:text-red-600 hover:underline disabled:opacity-50 transition-colors ml-4 shrink-0"
+											>
+												{deletingComment === c.id ? "Deleting…" : "Delete"}
+											</button>
+										)}
+									</div>
+									<p className="text-sm text-[var(--ink)] leading-relaxed">{c.content}</p>
+								</div>
+							);
+						})}
 					</div>
 				)}
 

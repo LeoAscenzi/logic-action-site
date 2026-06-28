@@ -4,6 +4,7 @@ from app.models.models import User
 from app.routers.deps import require_teacher
 from app.schemas.schemas import (
     AttendanceCreate,
+    AttendanceImport,
     AttendanceOut,
     AttendanceUpdate,
     ClassOut,
@@ -16,6 +17,7 @@ from app.schemas.schemas import (
     SessionOut,
     StudentOut,
 )
+from app.services.class_service import ClassService
 from app.services.exam_service import ExamService
 from app.services.homework_service import HomeworkService
 from app.services.teacher_service import TeacherService
@@ -51,6 +53,25 @@ async def get_class_students(
 ):
     await svc.assert_teacher_owns_class(class_id, teacher.id)
     return await svc.get_students_in_class(class_id)
+
+
+@router.get("/classes/{class_id}/grades", response_model=list[ExamOut])
+async def get_class_grades(
+    class_id: int,
+    teacher: User = Depends(require_teacher),
+    svc: TeacherService = Depends(TeacherService),
+):
+    await svc.assert_teacher_owns_class(class_id, teacher.id)
+    return await svc.get_grades_for_class(class_id)
+
+
+@router.get("/students/{student_id}/shared-classes", response_model=list[ClassOut])
+async def get_student_shared_classes(
+    student_id: int,
+    teacher: User = Depends(require_teacher),
+    svc: TeacherService = Depends(TeacherService),
+):
+    return await svc.get_student_shared_classes(student_id, teacher.id)
 
 
 # ── Attendance ─────────────────────────────────────────────────────────────────
@@ -99,6 +120,23 @@ async def delete_attendance(
 ):
     await svc.assert_attendance_belongs_to_teacher(attendance_id, teacher.id)
     await svc.delete_attendance(attendance_id)
+
+
+@router.post(
+    "/sessions/{session_id}/import-attendance",
+    response_model=list[AttendanceOut],
+    status_code=status.HTTP_201_CREATED,
+)
+async def import_session_attendance(
+    session_id: int,
+    body: AttendanceImport,
+    teacher: User = Depends(require_teacher),
+    teacher_svc: TeacherService = Depends(TeacherService),
+    class_svc: ClassService = Depends(ClassService),
+):
+    await teacher_svc.assert_session_belongs_to_teacher(session_id, teacher.id)
+    import_body = AttendanceImport(class_session_id=session_id, records=body.records)
+    return await class_svc.import_sessions(import_body)
 
 
 # ── Homework ───────────────────────────────────────────────────────────────────

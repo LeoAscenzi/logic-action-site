@@ -105,7 +105,22 @@ export default function CommunityFeed() {
 		loadPage(0, true);
 	};
 
-	if (isLoading) return null;
+	if (isLoading) {
+		return (
+			<div className="bg-[var(--cream)] min-h-[60vh]">
+				<div className="max-w-3xl mx-auto px-4 py-10">
+					<div className="flex items-center justify-between mb-6">
+						<div className="h-5 w-28 bg-[var(--line)] rounded animate-pulse" />
+					</div>
+					<div className="flex flex-col gap-3">
+						{Array.from({ length: 5 }).map((_, i) => (
+							<PostSkeleton key={i} />
+						))}
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	if (!user) {
 		return (

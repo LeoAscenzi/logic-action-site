@@ -36,6 +36,8 @@ class ExamService(BaseService):
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="score cannot exceed max_score",
             )
+        if body.title is not None:
+            exam.title = body.title
         if body.score is not None:
             exam.score = body.score
         if body.max_score is not None:

@@ -15,6 +15,7 @@ from app.schemas.schemas import (
 	CommunityPostOut,
 	CommunityPostUpdate,
 	EventOut,
+	MyCommentOut,
 	PublicUserOut,
 )
 from app.services.community_service import CommunityService
@@ -29,6 +30,14 @@ async def my_posts(
 	svc: CommunityService = Depends(CommunityService),
 ):
 	return await svc.list_my_posts(user.id)
+
+
+@router.get("/my-comments", response_model=list[MyCommentOut])
+async def my_comments(
+	user: User = Depends(get_current_user),
+	svc: CommunityService = Depends(CommunityService),
+):
+	return await svc.list_my_comments(user.id)
 
 
 @router.get("/users/{user_id}", response_model=PublicUserOut)

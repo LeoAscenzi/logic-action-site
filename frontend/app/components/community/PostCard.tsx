@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { MouseEvent } from "react";
 
 interface Post {
 	id: number;
@@ -46,14 +45,11 @@ function RoleBadge({ role }: { role: string }) {
 
 export default function PostCard({ post }: { post: Post }) {
 	return (
-		<Link
-			href={`/community/post/${post.id}`}
-			className="block bg-white rounded-xl border border-[var(--line)] shadow-sm px-6 py-5 hover:shadow-md hover:border-[var(--cream-dim)] transition-all"
-		>
-			<p className="text-xs text-[var(--ink-soft)] mb-1 flex items-center">
+		<article className="relative bg-white rounded-xl border border-[var(--line)] shadow-sm px-6 py-5 hover:shadow-md hover:border-[var(--cream-dim)] transition-all">
+			{/* Author + timestamp — z-[1] sits above the stretched card link */}
+			<p className="relative z-[1] text-xs text-[var(--ink-soft)] mb-1 flex items-center">
 				<Link
 					href={`/community/member/${post.author_id}`}
-					onClick={(e: MouseEvent) => e.stopPropagation()}
 					className="hover:text-[var(--ink)] hover:underline transition-colors"
 				>
 					{post.author_fname} {post.author_lname}
@@ -62,15 +58,24 @@ export default function PostCard({ post }: { post: Post }) {
 				<span className="mx-1.5">·</span>
 				{relativeTime(post.created_at)}
 			</p>
+
+			{/* Title — the ::after pseudo-element stretches to cover the whole card */}
 			<h3 className="font-playfair text-[1.05rem] font-semibold text-[var(--ink)] mb-2 leading-snug">
-				{post.title}
+				<Link
+					href={`/community/post/${post.id}`}
+					className="after:absolute after:inset-0 after:rounded-xl after:content-['']"
+				>
+					{post.title}
+				</Link>
 			</h3>
+
 			<p className="text-sm text-[var(--ink-soft)] leading-relaxed line-clamp-4">
 				{post.content}
 			</p>
-			<p className="mt-3 text-xs text-[var(--ink-soft)]">
+
+			<p className="relative z-[1] mt-3 text-xs text-[var(--ink-soft)]">
 				💬 {post.comment_count} {post.comment_count === 1 ? "comment" : "comments"}
 			</p>
-		</Link>
+		</article>
 	);
 }

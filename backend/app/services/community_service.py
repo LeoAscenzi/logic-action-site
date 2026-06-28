@@ -104,6 +104,18 @@ class CommunityService(BaseService):
 		)
 		return [_post_to_out(p) for p in result.scalars().all()]
 
+	async def list_my_comments(self, author_id: int) -> list:
+		result = await self.db.execute(
+			select(Comment, CommunityPost.title)
+			.join(CommunityPost, Comment.post_id == CommunityPost.id)
+			.where(Comment.author_id == author_id, CommunityPost.is_deleted == False)  # noqa: E712
+			.order_by(Comment.created_at.desc())
+		)
+		return [
+			{"id": c.id, "post_id": c.post_id, "post_title": title, "content": c.content, "created_at": c.created_at}
+			for c, title in result.all()
+		]
+
 	async def get_post(self, post_id: int) -> CommunityPostDetailOut:
 		post = await self._get_post_or_404(post_id)
 		return _post_to_detail_out(post)

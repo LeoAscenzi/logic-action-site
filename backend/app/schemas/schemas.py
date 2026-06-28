@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr
 
-from app.models.models import ExamType, UserRole
+from app.models.models import GradeType, UserRole
 
 
 # Auth
@@ -76,20 +76,22 @@ class StudentOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# Exams
+# Exams / Grades
 class ExamCreate(BaseModel):
     student_id: int
     class_id: Optional[int] = None
+    title: str = ""
     score: float
     max_score: float
-    type: ExamType
+    type: GradeType
     exam_date: date
 
 
 class ExamUpdate(BaseModel):
+    title: Optional[str] = None
     score: Optional[float] = None
     max_score: Optional[float] = None
-    type: Optional[ExamType] = None
+    type: Optional[GradeType] = None
     exam_date: Optional[date] = None
 
 
@@ -97,9 +99,10 @@ class ExamOut(BaseModel):
     id: int
     student_id: int
     class_id: Optional[int]
+    title: str
     score: float
     max_score: float
-    type: ExamType
+    type: GradeType
     exam_date: date
 
     model_config = {"from_attributes": True}
@@ -291,6 +294,14 @@ class CommunityPostOut(BaseModel):
 
 class CommunityPostDetailOut(CommunityPostOut):
     comments: list[CommentOut] = []
+
+
+class MyCommentOut(BaseModel):
+    id: int
+    post_id: int
+    post_title: str
+    content: str
+    created_at: datetime
 
 
 # Events

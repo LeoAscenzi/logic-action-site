@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.models.models import Class, ClassAttendance, ClassEnrollment, ClassSession, Student
+from app.models.models import Class, ClassAttendance, ClassEnrollment, ClassSession, Exam, Student
 from app.schemas.schemas import AttendanceCreate, AttendanceUpdate
 from app.services.base import BaseService
 
@@ -104,6 +104,25 @@ class TeacherService(BaseService):
         await self.db.commit()
         await self.db.refresh(record)
         return record
+
+    async def get_grades_for_class(self, class_id: int) -> list[Exam]:
+        result = await self.db.execute(
+            select(Exam)
+            .where(Exam.class_id == class_id)
+            .order_by(Exam.exam_date.desc())
+        )
+        return list(result.scalars().all())
+
+    async def get_student_shared_classes(self, student_id: int, teacher_id: int) -> list[Class]:
+        result = await self.db.execute(
+            select(Class)
+            .join(ClassEnrollment, ClassEnrollment.class_id == Class.id)
+            .where(
+                Class.teacher_id == teacher_id,
+                ClassEnrollment.student_id == student_id,
+            )
+        )
+        return list(result.scalars().all())
 
     async def delete_attendance(self, attendance_id: int) -> None:
         result = await self.db.execute(
