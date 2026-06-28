@@ -47,6 +47,15 @@ class UserUpdate(BaseModel):
     lname: Optional[str] = None
 
 
+class PublicUserOut(BaseModel):
+    id: int
+    fname: str
+    lname: str
+    role: UserRole
+
+    model_config = {"from_attributes": True}
+
+
 # Students
 class StudentAssign(BaseModel):
     parent_id: int

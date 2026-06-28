@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MouseEvent } from "react";
 
 interface Post {
 	id: number;
@@ -50,7 +51,13 @@ export default function PostCard({ post }: { post: Post }) {
 			className="block bg-white rounded-xl border border-[var(--line)] shadow-sm px-6 py-5 hover:shadow-md hover:border-[var(--cream-dim)] transition-all"
 		>
 			<p className="text-xs text-[var(--ink-soft)] mb-1 flex items-center">
-				<span>{post.author_fname} {post.author_lname}</span>
+				<Link
+					href={`/community/member/${post.author_id}`}
+					onClick={(e: MouseEvent) => e.stopPropagation()}
+					className="hover:text-[var(--ink)] hover:underline transition-colors"
+				>
+					{post.author_fname} {post.author_lname}
+				</Link>
 				<RoleBadge role={post.author_role} />
 				<span className="mx-1.5">·</span>
 				{relativeTime(post.created_at)}

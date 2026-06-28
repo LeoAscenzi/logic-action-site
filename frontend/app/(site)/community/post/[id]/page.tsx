@@ -181,7 +181,12 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
 						</button>
 					)}
 					<p className="text-xs text-[var(--ink-soft)] mb-2 flex items-center">
-						<span>{post.author_fname} {post.author_lname}</span>
+						<Link
+							href={`/community/member/${post.author_id}`}
+							className="hover:text-[var(--ink)] hover:underline transition-colors"
+						>
+							{post.author_fname} {post.author_lname}
+						</Link>
 						<RoleBadge role={post.author_role} />
 						<span className="mx-1.5">·</span>
 						{relativeTime(post.created_at)}
@@ -204,7 +209,12 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
 						{post.comments.map((c) => (
 							<div key={c.id} className="bg-white rounded-xl border border-[var(--line)] shadow-sm px-6 py-4">
 								<p className="text-xs text-[var(--ink-soft)] mb-1 flex items-center">
-									<span>{c.author_fname} {c.author_lname}</span>
+									<Link
+										href={`/community/member/${c.author_id}`}
+										className="hover:text-[var(--ink)] hover:underline transition-colors"
+									>
+										{c.author_fname} {c.author_lname}
+									</Link>
 									<RoleBadge role={c.author_role} />
 									<span className="mx-1.5">·</span>
 									{relativeTime(c.created_at)}

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -85,15 +87,12 @@ class CommunityService(BaseService):
 		if user.role != UserRole.admin and author_id != user.id:
 			raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
 
-	async def list_posts(self, skip: int = 0, limit: int = 10) -> list[CommunityPostOut]:
-		result = await self.db.execute(
-			select(CommunityPost)
-			.where(CommunityPost.is_deleted == False)  # noqa: E712
-			.options(*_POST_LOAD)
-			.order_by(CommunityPost.created_at.desc())
-			.offset(skip)
-			.limit(limit)
-		)
+	async def list_posts(self, skip: int = 0, limit: int = 10, author_id: Optional[int] = None) -> list[CommunityPostOut]:
+		q = select(CommunityPost).where(CommunityPost.is_deleted == False)  # noqa: E712
+		if author_id is not None:
+			q = q.where(CommunityPost.author_id == author_id)
+		q = q.options(*_POST_LOAD).order_by(CommunityPost.created_at.desc()).offset(skip).limit(limit)
+		result = await self.db.execute(q)
 		return [_post_to_out(p) for p in result.scalars().all()]
 
 	async def list_my_posts(self, author_id: int) -> list[CommunityPostOut]:

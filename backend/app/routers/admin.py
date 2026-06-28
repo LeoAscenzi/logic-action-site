@@ -232,6 +232,20 @@ async def list_teachers(
     return result.scalars().all()
 
 
+@router.delete("/delete-teacher/{teacher_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_teacher(
+    teacher_id: int,
+    _: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(User).where(User.id == teacher_id, User.role == UserRole.teacher))
+    teacher = result.scalar_one_or_none()
+    if not teacher:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teacher not found")
+    await db.delete(teacher)
+    await db.commit()
+
+
 @router.get("/students/{student_id}", response_model=StudentDetailOut)
 async def get_student_detail(
     student_id: int,

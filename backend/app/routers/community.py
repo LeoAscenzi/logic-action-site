@@ -1,5 +1,10 @@
-from fastapi import APIRouter, Depends, status
+from typing import Optional
 
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.db.session import get_db
 from app.models.models import User
 from app.routers.deps import get_current_user
 from app.schemas.schemas import (
@@ -10,6 +15,7 @@ from app.schemas.schemas import (
 	CommunityPostOut,
 	CommunityPostUpdate,
 	EventOut,
+	PublicUserOut,
 )
 from app.services.community_service import CommunityService
 from app.services.event_service import EventService
@@ -25,14 +31,28 @@ async def my_posts(
 	return await svc.list_my_posts(user.id)
 
 
+@router.get("/users/{user_id}", response_model=PublicUserOut)
+async def get_public_user(
+	user_id: int,
+	_: User = Depends(get_current_user),
+	db: AsyncSession = Depends(get_db),
+):
+	result = await db.execute(select(User).where(User.id == user_id))
+	user = result.scalar_one_or_none()
+	if not user:
+		raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+	return user
+
+
 @router.get("/posts", response_model=list[CommunityPostOut])
 async def list_posts(
 	skip: int = 0,
 	limit: int = 10,
+	author_id: Optional[int] = None,
 	_: User = Depends(get_current_user),
 	svc: CommunityService = Depends(CommunityService),
 ):
-	return await svc.list_posts(skip=skip, limit=limit)
+	return await svc.list_posts(skip=skip, limit=limit, author_id=author_id)
 
 
 @router.post("/posts", response_model=CommunityPostOut, status_code=status.HTTP_201_CREATED)
