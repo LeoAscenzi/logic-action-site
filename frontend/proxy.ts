@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const PW_BYPASS = new Set(["/pw", "/api/pw"]);
 
-export default function middleware(req: NextRequest) {
+export default function proxy(req: NextRequest) {
 	const { pathname } = req.nextUrl;
 
 	// Password gate — only active when ENABLE_PASSWORD_GATE=true (Vercel Preview env)
