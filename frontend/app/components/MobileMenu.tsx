@@ -20,13 +20,19 @@ const GET_STARTED_SUB = [
 	{ url: "/get-started#consultation", label: "Book a Consultation", sub: "Free 1:1 with an expert", gold: false },
 ];
 
-const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL ?? "http://localhost:3001";
-
 export default function MobileMenu() {
-	const [open, setOpen]       = useState(false);
-	const [mounted, setMounted] = useState(false);
-	const pathname              = usePathname();
-	const { user, logout }      = useAuth();
+	const [open, setOpen]           = useState(false);
+	const [mounted, setMounted]     = useState(false);
+	const [dashboardUrl, setDashboardUrl] = useState("http://localhost:3001");
+	const pathname                  = usePathname();
+	const { user, logout }          = useAuth();
+
+	useEffect(() => {
+		setDashboardUrl(
+			process.env.NEXT_PUBLIC_DASHBOARD_URL ??
+			`${window.location.protocol}//${window.location.hostname}:3001`
+		);
+	}, []);
 
 	// Wait for client mount before portal is available
 	useEffect(() => { setMounted(true); }, []); // eslint-disable-line react-hooks/set-state-in-effect
@@ -112,7 +118,7 @@ export default function MobileMenu() {
 				{user ? (
 					<div className="flex flex-col gap-3">
 						<a
-							href={`${DASHBOARD_URL}/dashboard/${user.role}`}
+							href={`${dashboardUrl}/dashboard/${user.role}`}
 							className="block w-full text-center rounded-xl border border-[var(--gold)] py-4 font-semibold text-[var(--gold)] hover:bg-[var(--gold)]/10 transition-colors"
 						>
 							{user.fname} {user.lname}

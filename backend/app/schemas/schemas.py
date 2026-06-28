@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr
 
-from app.models.models import GradeType, UserRole
+from app.models.models import GradeType, InvoiceStatus, PaymentMethod, PaymentStatus, UserRole
 
 
 # Auth
@@ -302,6 +302,80 @@ class MyCommentOut(BaseModel):
     post_title: str
     content: str
     created_at: datetime
+
+
+# Payments & Invoices
+class LineItemCreate(BaseModel):
+    description: str
+    amount: float
+
+
+class InvoiceCreate(BaseModel):
+    student_id: Optional[int] = None
+    due_date: date
+    memo: Optional[str] = None
+    line_items: list[LineItemCreate]
+
+
+class InvoiceUpdate(BaseModel):
+    due_date: Optional[date] = None
+    memo: Optional[str] = None
+
+
+class LineItemOut(BaseModel):
+    id: int
+    description: str
+    amount: float
+
+    model_config = {"from_attributes": True}
+
+
+class InvoiceOut(BaseModel):
+    id: int
+    student_id: Optional[int]
+    due_date: date
+    status: InvoiceStatus
+    memo: Optional[str]
+    created_at: datetime
+    line_items: list[LineItemOut]
+    total: float
+    amount_paid: float
+
+    model_config = {"from_attributes": True}
+
+
+class PaymentCreate(BaseModel):
+    student_id: Optional[int] = None
+    invoice_id: Optional[int] = None
+    amount: float
+    method: PaymentMethod
+    received_at: date
+    memo: Optional[str] = None
+    external_reference: Optional[str] = None
+
+
+class PaymentOut(BaseModel):
+    id: int
+    student_id: Optional[int]
+    invoice_id: Optional[int]
+    amount: float
+    method: PaymentMethod
+    status: PaymentStatus
+    received_at: date
+    memo: Optional[str]
+    external_reference: Optional[str]
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class StudentBalanceOut(BaseModel):
+    student_id: int
+    fname: str
+    lname: str
+    total_invoiced: float
+    total_paid: float
+    balance: float
 
 
 # Events

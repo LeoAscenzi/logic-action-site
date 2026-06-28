@@ -4,7 +4,7 @@ from sqlalchemy import select
 
 from app.db.session import get_db
 from app.core.security import hash_password
-from app.models.models import User, UserRole
+from app.models.models import InvoiceStatus, User, UserRole
 from app.routers.deps import require_admin
 from app.schemas.schemas import (
     AttendanceCreate,
@@ -23,9 +23,15 @@ from app.schemas.schemas import (
     ExamCreate,
     ExamOut,
     ExamUpdate,
+    InvoiceCreate,
+    InvoiceOut,
+    InvoiceUpdate,
+    PaymentCreate,
+    PaymentOut,
     SessionCreate,
     SessionOut,
     StudentAssign,
+    StudentBalanceOut,
     StudentCreate,
     StudentDetailOut,
     StudentOut,
@@ -35,6 +41,7 @@ from app.schemas.schemas import (
 from app.services.class_service import ClassService
 from app.services.event_service import EventService
 from app.services.exam_service import ExamService
+from app.services.payment_service import PaymentService
 from app.services.student_service import StudentService
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -338,6 +345,97 @@ async def delete_attendance(
     svc: ClassService = Depends(ClassService),
 ):
     await svc.delete_attendance(attendance_id)
+
+
+@router.post("/invoices", response_model=InvoiceOut, status_code=status.HTTP_201_CREATED)
+async def create_invoice(
+    body: InvoiceCreate,
+    admin: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.create_invoice(body, admin.id)
+
+
+@router.get("/invoices", response_model=list[InvoiceOut])
+async def list_invoices(
+    student_id: int | None = None,
+    invoice_status: InvoiceStatus | None = None,
+    _: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.list_invoices(student_id, invoice_status)
+
+
+@router.get("/invoices/{invoice_id}", response_model=InvoiceOut)
+async def get_invoice(
+    invoice_id: int,
+    _: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.get_invoice(invoice_id)
+
+
+@router.patch("/invoices/{invoice_id}", response_model=InvoiceOut)
+async def update_invoice(
+    invoice_id: int,
+    body: InvoiceUpdate,
+    _: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.update_invoice(invoice_id, body)
+
+
+@router.post("/invoices/{invoice_id}/void", response_model=InvoiceOut)
+async def void_invoice(
+    invoice_id: int,
+    _: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.void_invoice(invoice_id)
+
+
+@router.post("/payments", response_model=PaymentOut, status_code=status.HTTP_201_CREATED)
+async def record_payment(
+    body: PaymentCreate,
+    admin: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.record_payment(body, admin.id)
+
+
+@router.get("/payments", response_model=list[PaymentOut])
+async def list_payments(
+    student_id: int | None = None,
+    _: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.list_payments(student_id)
+
+
+@router.post("/payments/{payment_id}/refund", response_model=PaymentOut)
+async def refund_payment(
+    payment_id: int,
+    _: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.refund_payment(payment_id)
+
+
+@router.get("/balances", response_model=list[StudentBalanceOut])
+async def list_balances(
+    _: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.list_student_balances()
+
+
+@router.get("/balances/{student_id}", response_model=StudentBalanceOut)
+async def get_balance(
+    student_id: int,
+    _: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.get_student_balance(student_id)
 
 
 @router.post("/events", response_model=EventOut, status_code=status.HTTP_201_CREATED)

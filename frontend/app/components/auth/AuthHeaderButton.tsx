@@ -1,11 +1,18 @@
 "use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/app/context/AuthContext";
 
-const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL ?? "http://localhost:3001";
-
 export default function AuthHeaderButton() {
 	const { user, isLoading, logout } = useAuth();
+	const [dashboardUrl, setDashboardUrl] = useState("http://localhost:3001");
+
+	useEffect(() => {
+		setDashboardUrl(
+			process.env.NEXT_PUBLIC_DASHBOARD_URL ??
+			`${window.location.protocol}//${window.location.hostname}:3001`
+		);
+	}, []);
 
 	if (isLoading) return <span className="w-32" />;
 
@@ -23,7 +30,7 @@ export default function AuthHeaderButton() {
 	return (
 		<div className="flex items-center gap-3 text-sm">
 			<a
-				href={`${DASHBOARD_URL}/dashboard/${user.role}`}
+				href={`${dashboardUrl}/dashboard/${user.role}`}
 				className="font-semibold text-[var(--gold)] hover:underline whitespace-nowrap"
 			>
 				{user.fname}

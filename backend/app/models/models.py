@@ -29,6 +29,27 @@ class GradeType(str, enum.Enum):
     exam = "exam"
 
 
+class PaymentMethod(str, enum.Enum):
+    cash   = "cash"
+    venmo  = "venmo"
+    zelle  = "zelle"
+    check  = "check"
+    stripe = "stripe"
+    other  = "other"
+
+
+class PaymentStatus(str, enum.Enum):
+    completed = "completed"
+    refunded  = "refunded"
+
+
+class InvoiceStatus(str, enum.Enum):
+    unpaid  = "unpaid"
+    partial = "partial"
+    paid    = "paid"
+    void    = "void"
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -196,3 +217,57 @@ class Event(Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     current_capacity: Mapped[int | None] = mapped_column(Integer, nullable=True)
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+
+class Invoice(Base):
+    __tablename__ = "invoices"
+
+    id:         Mapped[int]           = mapped_column(Integer, primary_key=True)
+    student_id: Mapped[int | None]    = mapped_column(ForeignKey("students.id"), nullable=True)
+    due_date:   Mapped[date]          = mapped_column(Date, nullable=False)
+    status:     Mapped[InvoiceStatus] = mapped_column(Enum(InvoiceStatus), nullable=False, default=InvoiceStatus.unpaid)
+    memo:       Mapped[str | None]    = mapped_column(String(512), nullable=True)
+    created_by: Mapped[int]           = mapped_column(ForeignKey("users.id"), nullable=False)
+    created_at: Mapped[datetime]      = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    student:    Mapped["Student | None"]       = relationship(foreign_keys=[student_id])
+    line_items: Mapped[list["InvoiceLineItem"]] = relationship(back_populates="invoice", cascade="all, delete-orphan")
+    payments:   Mapped[list["Payment"]]         = relationship(back_populates="invoice")
+
+    @property
+    def total(self) -> float:
+        return round(sum(float(item.amount) for item in self.line_items), 2)
+
+    @property
+    def amount_paid(self) -> float:
+        return round(sum(float(p.amount) for p in self.payments if p.status == PaymentStatus.completed), 2)
+
+
+class InvoiceLineItem(Base):
+    __tablename__ = "invoice_line_items"
+
+    id:          Mapped[int]     = mapped_column(Integer, primary_key=True)
+    invoice_id:  Mapped[int]     = mapped_column(ForeignKey("invoices.id", ondelete="CASCADE"), nullable=False)
+    description: Mapped[str]     = mapped_column(String(512), nullable=False)
+    amount:      Mapped[float]   = mapped_column(Numeric(10, 2), nullable=False)
+
+    invoice: Mapped["Invoice"] = relationship(back_populates="line_items")
+
+
+class Payment(Base):
+    __tablename__ = "payments"
+
+    id:                 Mapped[int]           = mapped_column(Integer, primary_key=True)
+    student_id:         Mapped[int | None]    = mapped_column(ForeignKey("students.id"), nullable=True)
+    invoice_id:         Mapped[int | None]    = mapped_column(ForeignKey("invoices.id"), nullable=True)
+    amount:             Mapped[float]         = mapped_column(Numeric(10, 2), nullable=False)
+    method:             Mapped[PaymentMethod] = mapped_column(Enum(PaymentMethod), nullable=False)
+    status:             Mapped[PaymentStatus] = mapped_column(Enum(PaymentStatus), nullable=False, default=PaymentStatus.completed)
+    received_at:        Mapped[date]          = mapped_column(Date, nullable=False)
+    memo:               Mapped[str | None]    = mapped_column(String(512), nullable=True)
+    external_reference: Mapped[str | None]    = mapped_column(String(256), nullable=True)
+    created_by:         Mapped[int]           = mapped_column(ForeignKey("users.id"), nullable=False)
+    created_at:         Mapped[datetime]      = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    student: Mapped["Student | None"] = relationship(foreign_keys=[student_id])
+    invoice: Mapped["Invoice | None"] = relationship(back_populates="payments")
