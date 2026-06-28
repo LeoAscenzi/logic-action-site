@@ -25,7 +25,7 @@ export default function MobileMenu() {
 	const [mounted, setMounted]     = useState(false);
 	const [dashboardUrl, setDashboardUrl] = useState("http://localhost:3001");
 	const pathname                  = usePathname();
-	const { user, logout }          = useAuth();
+	const { user, logout, accessToken } = useAuth();
 
 	useEffect(() => {
 		setDashboardUrl(
@@ -48,6 +48,11 @@ export default function MobileMenu() {
 
 	const close = () => setOpen(false);
 	const isGetStartedActive = pathname === "/get-started";
+
+	let dashboardTokenParam = "";
+	if (accessToken) {
+		try { if (new URL(dashboardUrl).hostname !== window.location.hostname) dashboardTokenParam = `?token=${accessToken}`; } catch { /* empty or relative url */ }
+	}
 
 	const linkCls = (url: string) =>
 		`block py-5 text-lg font-medium border-b border-[var(--line-dark)] transition-colors ${
@@ -118,7 +123,7 @@ export default function MobileMenu() {
 				{user ? (
 					<div className="flex flex-col gap-3">
 						<a
-							href={`${dashboardUrl}/dashboard/${user.role}`}
+							href={`${dashboardUrl}/dashboard/${user.role}${dashboardTokenParam}`}
 							className="block w-full text-center rounded-xl border border-[var(--gold)] py-4 font-semibold text-[var(--gold)] hover:bg-[var(--gold)]/10 transition-colors"
 						>
 							{user.fname} {user.lname}

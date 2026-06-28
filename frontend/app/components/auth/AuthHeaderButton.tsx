@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useAuth } from "@/app/context/AuthContext";
 
 export default function AuthHeaderButton() {
-	const { user, isLoading, logout } = useAuth();
+	const { user, isLoading, logout, accessToken } = useAuth();
 	const [dashboardUrl, setDashboardUrl] = useState("http://localhost:3001");
 
 	useEffect(() => {
@@ -27,10 +27,15 @@ export default function AuthHeaderButton() {
 		);
 	}
 
+	let tokenParam = "";
+	if (accessToken) {
+		try { if (new URL(dashboardUrl).hostname !== window.location.hostname) tokenParam = `?token=${accessToken}`; } catch { /* empty or relative url */ }
+	}
+
 	return (
 		<div className="flex items-center gap-3 text-sm">
 			<a
-				href={`${dashboardUrl}/dashboard/${user.role}`}
+				href={`${dashboardUrl}/dashboard/${user.role}${tokenParam}`}
 				className="font-semibold text-[var(--gold)] hover:underline whitespace-nowrap"
 			>
 				{user.fname}
