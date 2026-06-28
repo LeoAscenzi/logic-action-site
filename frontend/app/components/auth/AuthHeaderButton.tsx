@@ -10,7 +10,7 @@ export default function AuthHeaderButton() {
 	useEffect(() => {
 		setDashboardUrl(
 			process.env.NEXT_PUBLIC_DASHBOARD_URL ??
-			`${window.location.protocol}//${window.location.hostname}:3001`
+			(window.location.hostname === "localhost" ? "http://localhost:3001" : "")
 		);
 	}, []);
 

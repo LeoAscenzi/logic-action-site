@@ -1,4 +1,3 @@
-import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
@@ -10,9 +9,16 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Override sqlalchemy.url with env var, converting asyncpg -> psycopg2 for migrations
-_db_url = os.environ.get("DATABASE_URL", config.get_main_option("sqlalchemy.url"))
-config.set_main_option("sqlalchemy.url", _db_url.replace("+asyncpg", "+psycopg2"))
+# Build the sync URL from app settings (supports both DATABASE_URL and POSTGRES_* vars).
+# asyncpg is async-only; psycopg2 is used here for the synchronous migration runner.
+# ?ssl=require (asyncpg syntax) → ?sslmode=require (psycopg2 syntax)
+from app.core.config import settings  # noqa: E402
+_sync_url = (
+    settings.DATABASE_URL
+    .replace("+asyncpg", "+psycopg2")
+    .replace("?ssl=require", "?sslmode=require")
+)
+config.set_main_option("sqlalchemy.url", _sync_url)
 
 from app.db.base import Base  # noqa: E402
 from app.models import models  # noqa: E402, F401  — registers tables on Base.metadata
