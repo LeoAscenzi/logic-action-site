@@ -4,3 +4,7 @@ CLAUDE.md
 # Test / seed data — not for version control
 build/seed_data.sql
 build/seed_db.sh
+
+# Built Docker image tarballs
+build/targets/
+*.tar
