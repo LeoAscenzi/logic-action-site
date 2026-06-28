@@ -22,12 +22,12 @@ export default function ProgramCard({ title, slug, category, description }: Prog
 
             {/* Actions */}
             <div className="flex gap-3 mt-auto pt-2">
-                <Link
+                {/* <Link
                     href={`/programs/${slug}`}
                     className="flex-1 text-center rounded-2xl border border-[var(--navy)] text-[var(--navy)] bg-white text-sm font-semibold py-2 hover:bg-[var(--navy)] hover:text-white transition-colors"
                 >
                     Learn More
-                </Link>
+                </Link> */}
                 <Link
                     href="/get-started"
                     className="flex-1 text-center rounded-2xl bg-[var(--navy)] !text-[var(--cream)] text-sm font-semibold py-2 hover:bg-[var(--navy-mid)] transition-colors"

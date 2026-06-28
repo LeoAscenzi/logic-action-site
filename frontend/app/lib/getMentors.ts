@@ -1,8 +1,8 @@
 export type Mentor = {
     name: string;
-    year: string;        // e.g. "Class of 2024"
-    school: string;      // e.g. "Harvard University"
-    photo?: string;      // path in /public, e.g. "/mentors/jane.jpg" — omit for initials avatar
+    major: string;
+    school: string;
+    photo?: string;
     description: string;
     tags: string[];
 };

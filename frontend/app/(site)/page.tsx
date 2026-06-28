@@ -14,13 +14,13 @@ export default async function Home() {
 		<div>
 			{/* ── Hero ─────────────────────────────────── */}
 			<Section variant="navy">
-				<div className="flex flex-col items-center text-center pt-18 pb-10 px-8">
-					<span className="eyebrow tracking-[0.22em] w-full !flex flex-wrap justify-center">
+				<div className="flex flex-col items-center text-center pt-16 md:pt-12 pb-10 px-8">
+					<span className="eyebrow tracking-[0.22em] w-full !flex flex-wrap justify-center md:!text-lg">
 						<span className="whitespace-nowrap">Test Prep</span>
-					{"  ·  "}
-					<span className="whitespace-nowrap">College Advisory</span>
-					
-					<span className="whitespace-nowrap">{"  ·  "}Academic Support</span>
+						{"  ·  "}
+						<span className="whitespace-nowrap">College Advisory</span>
+						
+						<span className="whitespace-nowrap">{"  ·  "}Academic Support</span>
 					</span>
 
 					<div className="font-playfair text-5xl lg:text-7xl font-semibold leading-tight max-w-[500px] pb-4">
@@ -29,19 +29,19 @@ export default async function Home() {
 					</div>
 
 					<p className="text-body text-cream-dim max-w-2xl leading-relaxed pb-6">
-						NYC&apos;s premier education community for families with high goals.
+						NYC-based. In-person & online.
 					</p>
 
 					<div className="flex flex-wrap justify-center gap-4">
 						<Link
 							href="/get-started#diagnostic"
-							className="rounded-3xl bg-[var(--gold)] px-7 py-3 text-sm font-semibold !text-[var(--ink)] hover:bg-[var(--gold-light)] transition-colors whitespace-nowrap"
+							className="rounded-3xl border border-[var(--gold)] px-7 py-3 text-sm font-semibold text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--ink)] transition-colors whitespace-nowrap"
 						>
 							Get Your Diagnostic
 						</Link>
 						<Link
 							href="/get-started#consultation"
-							className="rounded-3xl border border-[var(--gold)] px-7 py-3 text-sm font-semibold text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--ink)] transition-colors whitespace-nowrap"
+							className="rounded-3xl bg-[var(--gold)] px-7 py-3 text-sm font-semibold !text-[var(--ink)] hover:bg-[var(--gold-light)] transition-colors whitespace-nowrap"
 						>
 							Book a Consultation
 						</Link>
@@ -56,10 +56,10 @@ export default async function Home() {
 				<div className="max-w-3xl mx-auto flex flex-col items-center text-center py-24 px-8 gap-4">
 					<span className="eyebrow">What We Are</span>
 					<h2 className="font-playfair text-title font-semibold leading-snug">
-						More Than Tutoring. A Community Built for Results.
+						We Build a Community
 					</h2>
 					<p className="text-body text-ink-soft leading-relaxed">
-						Ivy Bridge Society is a supportive community where mentors who have walked the road guide you, aspirational peers connect and help each other, and elite families share resources and insights. We exist for one reason: your student&apos;s results.
+						Ivy Bridge Society is a supportive community. Where mentors who've walked the road guide you, aspirational peers connect and lift each other up, and elite families share their resources and insights. 
 					</p>
 					<Link
 						href="/community"
@@ -74,7 +74,7 @@ export default async function Home() {
 			<Section variant="white">
 				<div className="max-w-5xl mx-auto flex flex-col items-center text-center py-24 px-8 gap-4">
 					<span className="eyebrow">Our Approach</span>
-					<h2 className="font-playfair text-title font-semibold leading-snug max-w-2xl">
+					<h2 className="font-playfair text-title font-semibold leading-snug max-w-3xl">
 						Personalized Learning Growth Plans That Deliver Fast Results — and Benefit You Long-Term.
 					</h2>
 					<p className="text-body text-ink-soft leading-relaxed max-w-2xl">
@@ -133,7 +133,6 @@ export default async function Home() {
 						<h2 className="font-playfair text-title font-semibold text-white">
 							Results Are the Only Measurement That Matters.
 						</h2>
-						<p className="text-body text-cream-dim mt-4">Placeholder figures — replace with verified outcomes.</p>
 					</div>
 
 					<div className="grid grid-cols-2 lg:grid-cols-4 gap-10 text-center">
@@ -164,7 +163,7 @@ export default async function Home() {
 					<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 						{[
 							{
-								quote: "Our daughter went from a 1290 to a 1510. But what we valued most was the plan — they knew exactly what to fix and in what order.",
+								quote: "Our daughter went from a 1290 to a 1510. But what we valued most was the plan, they knew exactly what to fix and in what order.",
 								name:  "The Reyes Family",
 								loc:   "Upper West Side, NYC",
 							},
@@ -174,7 +173,7 @@ export default async function Home() {
 								loc:   "Tribeca, NYC",
 							},
 							{
-								quote: "The mentors don't just tutor — they show my daughter what's possible. She's more motivated than she's ever been.",
+								quote: "The mentors don't just tutor, they show my daughter what's possible. She's more motivated than she's ever been.",
 								name:  "The Okafor Family",
 								loc:   "Brooklyn Heights, NYC",
 							},
@@ -183,8 +182,8 @@ export default async function Home() {
 								key={name}
 								className="bg-white rounded-2xl border border-[var(--line)] p-8 flex flex-col gap-5 shadow-sm"
 							>
-								<span className="font-playfair text-4xl text-[var(--gold)] leading-none select-none">&ldquo;</span>
-								<p className="text-body text-ink leading-relaxed flex-1">{quote}</p>
+								<span className="font-playfair text-6xl text-[var(--gold)] leading-none select-none">&ldquo;</span>
+								<p className="text-body text-ink leading-relaxed flex-1 md:mt-[-16px]">{quote}</p>
 								<div>
 									<p className="font-semibold text-navy">{name}</p>
 									<p className="text-sm text-ink-soft">{loc}</p>
@@ -199,7 +198,7 @@ export default async function Home() {
 			<CalloutSection
 				eyebrow="Ready When You Are"
 				title="Ready to start? Talk to us today."
-				phone="(123) 456-7890"
+				phone="(680) 215-7089"
 				ctaText="Contact Us"
 				ctaHref="/contact"
 			/>

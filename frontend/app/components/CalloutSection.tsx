@@ -14,7 +14,7 @@ export default function CalloutSection({ eyebrow, title, phone, ctaText, ctaHref
 			<div className="max-w-2xl mx-auto flex flex-col items-center text-center gap-6">
 				<span className="eyebrow">{eyebrow}</span>
 				<h2 className="font-playfair text-title font-semibold">{title}</h2>
-				<p className="text-body text-cream-dim tracking-wide">{phone}</p>
+				<p className="text-body text-cream-dim tracking-wide"><a href={`tel:${phone}`}>{phone}</a></p>
 				<Link
 					href={ctaHref}
 					className="rounded-xl bg-[var(--gold)] px-8 py-3 text-sm font-semibold text-[var(--ink)] hover:bg-[var(--gold-light)] transition-colors"

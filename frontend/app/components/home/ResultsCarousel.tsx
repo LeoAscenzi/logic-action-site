@@ -54,14 +54,14 @@ export default function ResultsCarousel() {
                                 Photo
                             </span>
                         </div>
-                        <div className="bg-[var(--navy-mid)] px-4 py-3">
+                        {/* <div className="bg-[var(--navy-mid)] px-4 py-3">
                             <div className="text-[var(--cream-dim)] text-xs font-medium uppercase tracking-wider mb-0.5">
                                 {item.title}
                             </div>
                             <div className="font-playfair text-[var(--gold)] text-xl font-semibold leading-tight">
                                 {item.subtitle}
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                 ))}
             </div>
