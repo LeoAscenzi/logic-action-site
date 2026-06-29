@@ -45,10 +45,10 @@ export default function Contact() {
 							<div className="flex flex-col max-w-xl">
 								<span className="eyebrow">Email</span>
 								<a
-									href="mailto:ivybridgesocietyadmin@gmail.com"
+									href="mailto:email@ivybridgesociety.com"
 									className="w-fit text-body font-medium text-[var(--navy)] hover:text-[var(--navy-soft)] transition-colors"
 								>
-									ivybridgesocietyadmin@gmail.com
+									email@ivybridgesociety.com
 								</a>
 							</div>
 
