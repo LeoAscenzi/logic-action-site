@@ -82,6 +82,17 @@ export default function Footer() {
 				<span className="text-xs text-cream-dim font-playfair italic">
 					Results. Not Promises.
 				</span>
+				<span className="text-xs text-cream-dim">
+					Designed by{" "}
+					<a
+						href="https://www.leoascenzi.com"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="hover:text-white transition-colors"
+					>
+						Leo Ascenzi
+					</a>
+				</span>
 			</div>
 
 		</Section>
