@@ -1,8 +1,22 @@
 import type { ReactNode } from "react";
+import type { Metadata } from "next";
 import HeroSection from "@/app/components/pageSections/HeroSection";
 import Section from "@/app/components/section";
 import PriceCard from "@/app/components/cards/priceCard";
 import DiagnosticForm from "@/app/components/forms/diagnosticForm";
+
+export const metadata: Metadata = {
+	title: "Get Started",
+	description:
+		"Start with a free diagnostic and consultation. Build a personalized growth plan with Ivy Bridge Society.",
+	alternates: { canonical: "/get-started" },
+	openGraph: {
+		title: "Get Started · Ivy Bridge Society",
+		description:
+			"Start with a free diagnostic and consultation. Build a personalized growth plan with Ivy Bridge Society.",
+		url: "/get-started",
+	},
+};
 import CalendlyEmbed from "@/app/components/CalendlyEmbed";
 
 interface ServiceSectionProps {

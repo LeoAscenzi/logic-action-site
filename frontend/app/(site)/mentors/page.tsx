@@ -2,6 +2,20 @@ import Section from "@/app/components/section";
 import HeroSection from "@/app/components/pageSections/HeroSection";
 import MentorCard from "@/app/components/cards/MentorCard";
 import { getMentors } from "@/app/lib/getMentors";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+	title: "Mentors",
+	description:
+		"Meet the mentors from top schools who guide Ivy Bridge Society students toward measurable academic results.",
+	alternates: { canonical: "/mentors" },
+	openGraph: {
+		title: "Mentors · Ivy Bridge Society",
+		description:
+			"Meet the mentors from top schools who guide Ivy Bridge Society students toward measurable academic results.",
+		url: "/mentors",
+	},
+};
 
 export default async function MentorsPage() {
 	const mentors = await getMentors();

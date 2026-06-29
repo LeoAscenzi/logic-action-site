@@ -2,6 +2,20 @@ import Section from "@/app/components/section";
 import HeroSection from "@/app/components/pageSections/HeroSection";
 import ProgramCard from "@/app/components/cards/ProgramCard";
 import { getPrograms, Program } from "@/app/lib/getPrograms";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+	title: "Programs",
+	description:
+		"SAT & ACT test prep, college advisory, and academic support programs tailored to each student's goals and timeline.",
+	alternates: { canonical: "/programs" },
+	openGraph: {
+		title: "Programs · Ivy Bridge Society",
+		description:
+			"SAT & ACT test prep, college advisory, and academic support programs tailored to each student's goals and timeline.",
+		url: "/programs",
+	},
+};
 
 export default async function ProgramsPage() {
 	const programs: Program[] = await getPrograms();

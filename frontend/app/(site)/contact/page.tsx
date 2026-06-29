@@ -1,6 +1,20 @@
+import type { Metadata } from "next";
 import HeroSection from "@/app/components/pageSections/HeroSection";
 import Section from "@/app/components/section";
 import ContactForm from "@/app/components/forms/contactForm";
+
+export const metadata: Metadata = {
+	title: "Contact",
+	description:
+		"Get in touch with Ivy Bridge Society. Call or text (680) 215-7089 — we respond within 24 hours.",
+	alternates: { canonical: "/contact" },
+	openGraph: {
+		title: "Contact · Ivy Bridge Society",
+		description:
+			"Get in touch with Ivy Bridge Society. Call or text (680) 215-7089 — we respond within 24 hours.",
+		url: "/contact",
+	},
+};
 
 export default function Contact() {
 	return (
