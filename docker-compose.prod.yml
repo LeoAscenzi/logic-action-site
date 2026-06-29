@@ -9,21 +9,6 @@ services:
     networks:
       - internal
 
-  metabase:
-    image: metabase/metabase:latest
-    restart: unless-stopped
-    expose:
-      - "3000"
-    volumes:
-      - metabase_data:/metabase-data
-    environment:
-      MB_DB_FILE: /metabase-data/metabase.db
-      MB_ANALYTICS_TRACKING: "false"
-      MB_SITE_NAME: "Ivy Bridge"
-      MB_SITE_URL: "https://metabase.ivybridgesociety.com"
-    networks:
-      - internal
-
   nginx:
     image: nginx:alpine
     restart: unless-stopped
@@ -36,7 +21,6 @@ services:
       - ./certbot/www:/var/www/certbot:ro
     depends_on:
       - api
-      - metabase
     networks:
       - internal
 
@@ -45,9 +29,6 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-
-volumes:
-  metabase_data:
 
 networks:
   internal:
