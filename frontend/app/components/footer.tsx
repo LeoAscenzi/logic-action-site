@@ -12,8 +12,8 @@ const NAV_LINKS = [
 	{ href: "/contact",      label: "Contact Us" },
 ] as const;
 
-const PHONE        = "(123) 456-7890";
-const PHONE_DIGITS = "1234567890";
+const PHONE        = "(680) 215-7089";
+const PHONE_DIGITS = "6802157089";
 
 export default function Footer() {
 	return (

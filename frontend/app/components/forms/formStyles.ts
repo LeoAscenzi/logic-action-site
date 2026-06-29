@@ -1,5 +1,5 @@
 export const inputCls =
-	"w-full rounded-lg border border-[var(--line)] bg-[var(--cream)] px-4 py-2.5 text-sm text-[var(--ink)] " +
+	"w-full rounded-lg border border-[var(--line)] bg-white px-4 py-2.5 text-sm text-[var(--ink)] " +
 	"placeholder:text-[var(--ink-soft)] focus:outline-none focus:ring-1 focus:ring-[var(--navy)]";
 
 export const labelCls = "text-xs font-semibold text-[var(--navy)]";

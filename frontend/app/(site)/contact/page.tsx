@@ -13,7 +13,7 @@ export default function Contact() {
 
 			<Section variant="cream">
 				<div className="max-w-6xl mx-auto py-20 px-8">
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
 
 						{/* Left: contact info */}
 						<div className="flex flex-col gap-10 pt-2">
@@ -21,20 +21,20 @@ export default function Contact() {
 							<div className="flex flex-col">
 								<span className="eyebrow">Call or Text</span>
 								<a
-									href="tel:1234567890"
+									href="tel:6802157089"
 									className="w-fit font-playfair text-4xl font-bold !text-[var(--gold)] hover:text-[var(--gold-light)] transition-colors leading-tight"
 								>
-									(123) 456-7890
+									(680) 215-7089
 								</a>
 							</div>
 
 							<div className="flex flex-col max-w-xl">
 								<span className="eyebrow">Email</span>
 								<a
-									href="mailto:somepeople@mail.com"
+									href="mailto:ivybridgesocietyadmin@gmail.com"
 									className="w-fit text-body font-medium text-[var(--navy)] hover:text-[var(--navy-soft)] transition-colors"
 								>
-									somepeople@mail.com
+									ivybridgesocietyadmin@gmail.com
 								</a>
 							</div>
 

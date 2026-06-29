@@ -13,4 +13,6 @@ dependencies = [
     "python-jose[cryptography]",
     "bcrypt",
     "python-multipart",
+    "aiosmtplib>=5.1.2",
+    "boto3",
 ]

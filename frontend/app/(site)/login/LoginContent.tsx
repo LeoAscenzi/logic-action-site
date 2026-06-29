@@ -1,27 +1,23 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import LoginForm from "@/app/components/auth/LoginForm";
 import RegisterForm from "@/app/components/auth/RegisterForm";
 
+const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL ?? "http://localhost:3001";
+
 export default function LoginContent() {
   const { user, isLoading } = useAuth();
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const [tab, setTab] = useState<"login" | "register">("login");
 
   useEffect(() => {
     if (!isLoading && user) {
-      const from = searchParams.get("from");
-      router.replace(from ?? `/dashboard/${user.role}`);
+      window.location.href = `${DASHBOARD_URL}/dashboard/${user.role}`;
     }
-  }, [user, isLoading, router, searchParams]);
+  }, [user, isLoading]);
 
   if (isLoading) return null;
   if (user) return null;
-
-  const from = searchParams.get("from") ?? undefined;
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4">
@@ -41,8 +37,8 @@ export default function LoginContent() {
           </button>
         </div>
         {tab === "login"
-          ? <LoginForm onSuccess={() => router.replace(from ?? "/dashboard/parent")} />
-          : <RegisterForm onSuccess={() => router.replace(from ?? "/dashboard/parent")} />
+          ? <LoginForm onSuccess={() => { window.location.href = `${DASHBOARD_URL}/dashboard/parent`; }} />
+          : <RegisterForm onSuccess={() => { window.location.href = `${DASHBOARD_URL}/dashboard/parent`; }} />
         }
       </div>
     </main>

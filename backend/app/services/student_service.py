@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
 from app.db.session import get_db
-from app.models.models import Student, User, UserRole
-from app.schemas.schemas import StudentCreate
+from app.models.models import Class, ClassEnrollment, Exam, Student, User, UserRole
+from app.schemas.schemas import StudentCreate, StudentDetailOut
 from app.services.base import BaseService
 
 
@@ -49,6 +49,21 @@ class StudentService(BaseService):
         student.is_deleted = True
         await self.db.commit()
 
+    async def delete_students(self, ids: list[int]) -> None:
+        result = await self.db.execute(
+            select(Student).where(Student.id.in_(ids), Student.is_deleted == False)  # noqa: E712
+        )
+        found = {s.id: s for s in result.scalars().all()}
+        missing = [i for i in ids if i not in found]
+        if missing:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Students not found: {missing}",
+            )
+        for student in found.values():
+            student.is_deleted = True
+        await self.db.commit()
+
     async def get_students_for_parent(self, parent_id: int) -> list[Student]:
         result = await self.db.execute(
             select(Student).where(
@@ -82,6 +97,35 @@ class StudentService(BaseService):
         await self.db.commit()
         await self.db.refresh(student)
         return student
+
+    async def get_student_detail(self, student_id: int) -> StudentDetailOut:
+        student = await self._get_active_student_or_422(student_id)
+
+        parent = None
+        if student.parent_id:
+            result = await self.db.execute(select(User).where(User.id == student.parent_id))
+            parent = result.scalar_one_or_none()
+
+        result = await self.db.execute(
+            select(Class)
+            .join(ClassEnrollment, ClassEnrollment.class_id == Class.id)
+            .where(ClassEnrollment.student_id == student_id)
+        )
+        enrolled_classes = list(result.scalars().all())
+
+        result = await self.db.execute(select(Exam).where(Exam.student_id == student_id))
+        exam_count = len(list(result.scalars().all()))
+
+        return StudentDetailOut(
+            id=student.id,
+            fname=student.fname,
+            lname=student.lname,
+            parent_id=student.parent_id,
+            parent_fname=parent.fname if parent else None,
+            parent_lname=parent.lname if parent else None,
+            enrolled_classes=enrolled_classes,
+            exam_count=exam_count,
+        )
 
     async def assert_owned_by_parent(self, student_id: int, parent_id: int) -> None:
         result = await self.db.execute(

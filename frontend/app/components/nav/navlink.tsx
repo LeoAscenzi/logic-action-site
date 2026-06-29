@@ -14,7 +14,7 @@ export default function Navlink({ url, text }: NavlinkPropTypes) {
     
     return (
         <Link
-            className={`nav-link font-sans font-medium tracking-wider transition-colors ${selected ? "active" : ""}`}
+            className={`nav-link font-sans font-medium tracking-wide xl:tracking-wider transition-colors ${selected ? "active" : ""}`}
             href={url}
         >
             {text}

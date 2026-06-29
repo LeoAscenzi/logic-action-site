@@ -1,27 +1,55 @@
-from fastapi import APIRouter, Depends, status
+from datetime import datetime, timedelta, timezone
+
+from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, status
 
 from sqlalchemy import select
 
+from app.core.security import create_invite_token, hash_password
 from app.db.session import get_db
-from app.models.models import User, UserRole
+from app.models.models import EventRegistration, Invite, InvoiceStatus, User, UserRole
 from app.routers.deps import require_admin
 from app.schemas.schemas import (
+    AttendanceCreate,
     AttendanceImport,
     AttendanceOut,
+    AttendanceUpdate,
+    BulkDeleteBody,
     ClassCreate,
+    ClassEnrollmentCreate,
+    ClassEnrollmentOut,
     ClassOut,
+    ClassUpdate,
+    EventCreate,
+    EventOut,
+    EventRsvpOut,
+    EventUpdate,
     ExamCreate,
     ExamOut,
     ExamUpdate,
+    InvoiceCreate,
+    InvoiceOut,
+    InvoiceUpdate,
+    InviteCreate,
+    InviteOut,
+    PaymentCreate,
+    PaymentOut,
     SessionCreate,
     SessionOut,
     StudentAssign,
+    StudentBalanceOut,
     StudentCreate,
+    StudentDetailOut,
     StudentOut,
+    TeacherCreate,
+    UploadOut,
     UserOut,
 )
 from app.services.class_service import ClassService
+from app.services.email_service import send_invite
+from app.services.event_service import EventService
+from app.services.storage import upload_file as storage_upload
 from app.services.exam_service import ExamService
+from app.services.payment_service import PaymentService
 from app.services.student_service import StudentService
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -134,3 +162,398 @@ async def import_sessions(
     svc: ClassService = Depends(ClassService),
 ):
     return await svc.import_sessions(body)
+
+
+@router.delete("/delete-students", status_code=status.HTTP_204_NO_CONTENT)
+async def bulk_delete_students(
+    body: BulkDeleteBody,
+    _: User = Depends(require_admin),
+    svc: StudentService = Depends(StudentService),
+):
+    await svc.delete_students(body.ids)
+
+
+@router.get("/grades/{student_id}", response_model=list[ExamOut])
+async def get_student_grades(
+    student_id: int,
+    _: User = Depends(require_admin),
+    svc: ExamService = Depends(ExamService),
+):
+    return await svc.get_grades_for_student(student_id)
+
+
+@router.patch("/update-class/{class_id}", response_model=ClassOut)
+async def update_class(
+    class_id: int,
+    body: ClassUpdate,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    return await svc.update_class(class_id, body)
+
+
+@router.delete("/delete-class/{class_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_class(
+    class_id: int,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    await svc.delete_class(class_id)
+
+
+@router.delete("/delete-classes", status_code=status.HTTP_204_NO_CONTENT)
+async def bulk_delete_classes(
+    body: BulkDeleteBody,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    await svc.delete_classes(body.ids)
+
+
+@router.post("/create-teacher", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+async def create_teacher(
+    body: TeacherCreate,
+    _: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    existing = await db.execute(
+        select(User).where((User.username == body.username) | (User.email == body.email))
+    )
+    if existing.scalar_one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Username or email already registered",
+        )
+    user = User(
+        username=body.username,
+        fname=body.fname,
+        lname=body.lname,
+        email=body.email,
+        password=hash_password(body.password),
+        role=UserRole.teacher,
+    )
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+@router.get("/teachers", response_model=list[UserOut])
+async def list_teachers(
+    _: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(User).where(User.role == UserRole.teacher))
+    return result.scalars().all()
+
+
+@router.delete("/delete-teacher/{teacher_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_teacher(
+    teacher_id: int,
+    _: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(User).where(User.id == teacher_id, User.role == UserRole.teacher))
+    teacher = result.scalar_one_or_none()
+    if not teacher:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teacher not found")
+    await db.delete(teacher)
+    await db.commit()
+
+
+@router.get("/students/{student_id}", response_model=StudentDetailOut)
+async def get_student_detail(
+    student_id: int,
+    _: User = Depends(require_admin),
+    svc: StudentService = Depends(StudentService),
+):
+    return await svc.get_student_detail(student_id)
+
+
+@router.get("/classes/{class_id}/students", response_model=list[StudentOut])
+async def list_class_students(
+    class_id: int,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    return await svc.get_enrolled_students(class_id)
+
+
+@router.post("/classes/{class_id}/students", response_model=ClassEnrollmentOut, status_code=status.HTTP_201_CREATED)
+async def enroll_student(
+    class_id: int,
+    body: ClassEnrollmentCreate,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    return await svc.enroll_student(class_id, body)
+
+
+@router.delete("/classes/{class_id}/students/{student_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def unenroll_student(
+    class_id: int,
+    student_id: int,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    await svc.unenroll_student(class_id, student_id)
+
+
+@router.get("/classes/{class_id}/sessions", response_model=list[SessionOut])
+async def list_class_sessions(
+    class_id: int,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    return await svc.get_sessions_for_class(class_id)
+
+
+@router.delete("/sessions/{session_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_session(
+    session_id: int,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    await svc.delete_session(session_id)
+
+
+@router.get("/sessions/{session_id}/attendance", response_model=list[AttendanceOut])
+async def list_session_attendance(
+    session_id: int,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    return await svc.get_session_attendance(session_id)
+
+
+@router.post("/sessions/{session_id}/attendance", response_model=AttendanceOut, status_code=status.HTTP_201_CREATED)
+async def create_attendance(
+    session_id: int,
+    body: AttendanceCreate,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    return await svc.create_attendance(session_id, body)
+
+
+@router.patch("/attendance/{attendance_id}", response_model=AttendanceOut)
+async def update_attendance(
+    attendance_id: int,
+    body: AttendanceUpdate,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    return await svc.update_attendance(attendance_id, body)
+
+
+@router.delete("/attendance/{attendance_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_attendance(
+    attendance_id: int,
+    _: User = Depends(require_admin),
+    svc: ClassService = Depends(ClassService),
+):
+    await svc.delete_attendance(attendance_id)
+
+
+@router.post("/invoices", response_model=InvoiceOut, status_code=status.HTTP_201_CREATED)
+async def create_invoice(
+    body: InvoiceCreate,
+    admin: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.create_invoice(body, admin.id)
+
+
+@router.get("/invoices", response_model=list[InvoiceOut])
+async def list_invoices(
+    student_id: int | None = None,
+    invoice_status: InvoiceStatus | None = None,
+    _: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.list_invoices(student_id, invoice_status)
+
+
+@router.get("/invoices/{invoice_id}", response_model=InvoiceOut)
+async def get_invoice(
+    invoice_id: int,
+    _: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.get_invoice(invoice_id)
+
+
+@router.patch("/invoices/{invoice_id}", response_model=InvoiceOut)
+async def update_invoice(
+    invoice_id: int,
+    body: InvoiceUpdate,
+    _: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.update_invoice(invoice_id, body)
+
+
+@router.post("/invoices/{invoice_id}/void", response_model=InvoiceOut)
+async def void_invoice(
+    invoice_id: int,
+    _: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.void_invoice(invoice_id)
+
+
+@router.post("/payments", response_model=PaymentOut, status_code=status.HTTP_201_CREATED)
+async def record_payment(
+    body: PaymentCreate,
+    admin: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.record_payment(body, admin.id)
+
+
+@router.get("/payments", response_model=list[PaymentOut])
+async def list_payments(
+    student_id: int | None = None,
+    _: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.list_payments(student_id)
+
+
+@router.post("/payments/{payment_id}/refund", response_model=PaymentOut)
+async def refund_payment(
+    payment_id: int,
+    _: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.refund_payment(payment_id)
+
+
+@router.get("/balances", response_model=list[StudentBalanceOut])
+async def list_balances(
+    _: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.list_student_balances()
+
+
+@router.get("/balances/{student_id}", response_model=StudentBalanceOut)
+async def get_balance(
+    student_id: int,
+    _: User = Depends(require_admin),
+    svc: PaymentService = Depends(PaymentService),
+):
+    return await svc.get_student_balance(student_id)
+
+
+@router.post("/upload", response_model=UploadOut)
+async def upload(
+    request: Request,
+    file: UploadFile = File(...),
+    _: User = Depends(require_admin),
+):
+    url = await storage_upload(file, str(request.base_url))
+    return UploadOut(url=url)
+
+
+@router.post("/events", response_model=EventOut, status_code=status.HTTP_201_CREATED)
+async def create_event(
+    body: EventCreate,
+    _: User = Depends(require_admin),
+    svc: EventService = Depends(EventService),
+):
+    return await svc.create_event(body)
+
+
+@router.patch("/events/{event_id}", response_model=EventOut)
+async def update_event(
+    event_id: int,
+    body: EventUpdate,
+    _: User = Depends(require_admin),
+    svc: EventService = Depends(EventService),
+):
+    return await svc.update_event(event_id, body)
+
+
+@router.delete("/events/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_event(
+    event_id: int,
+    _: User = Depends(require_admin),
+    svc: EventService = Depends(EventService),
+):
+    await svc.delete_event(event_id)
+
+
+@router.get("/events/{event_id}/registrations", response_model=list[EventRsvpOut])
+async def list_event_registrations(
+    event_id: int,
+    _: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(EventRegistration)
+        .where(EventRegistration.event_id == event_id)
+        .order_by(EventRegistration.created_at)
+    )
+    return result.scalars().all()
+
+
+@router.delete("/events/{event_id}/registrations/{registration_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_event_registration(
+    event_id: int,
+    registration_id: int,
+    _: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(EventRegistration).where(
+            EventRegistration.id == registration_id,
+            EventRegistration.event_id == event_id,
+        )
+    )
+    reg = result.scalar_one_or_none()
+    if not reg:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registration not found")
+    await db.delete(reg)
+    await db.commit()
+
+
+# ── Invites ──────────────────────────────────────────────────────────────────
+
+@router.post("/invites", response_model=InviteOut, status_code=status.HTTP_201_CREATED)
+async def create_invite(
+    body: InviteCreate,
+    _: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    expires_at = datetime.now(timezone.utc) + timedelta(days=body.expires_days)
+    token = create_invite_token(body.email, body.role.value, body.expires_days)
+    invite = Invite(token=token, email=body.email, role=body.role, expires_at=expires_at)
+    db.add(invite)
+    await db.commit()
+    await db.refresh(invite)
+    await send_invite(body.email, body.role.value, token, body.expires_days)
+    return invite
+
+
+@router.get("/invites", response_model=list[InviteOut])
+async def list_invites(
+    _: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Invite).order_by(Invite.created_at.desc()))
+    return result.scalars().all()
+
+
+@router.delete("/invites/{invite_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_invite(
+    invite_id: int,
+    _: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Invite).where(Invite.id == invite_id))
+    invite = result.scalar_one_or_none()
+    if not invite:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invite not found")
+    await db.delete(invite)
+    await db.commit()

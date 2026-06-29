@@ -7,7 +7,7 @@ function initials(name: string) {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-export default function MentorCard({ name, year, school, photo, description, tags }: Mentor) {
+export default function MentorCard({ name, major, school, photo, description, tags }: Mentor) {
     return (
         <div className="flex flex-col items-center text-center gap-4 bg-white rounded-2xl border border-[var(--line)] p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-[var(--gold)]">
 
@@ -35,7 +35,7 @@ export default function MentorCard({ name, year, school, photo, description, tag
 
             {/* School pill */}
             <span className="bg-[var(--gold-light)] text-[var(--ink)] text-xs font-semibold px-3 py-1 rounded-full">
-                {year} &nbsp;|&nbsp; {school}
+                {major} &nbsp;|&nbsp; {school}
             </span>
 
             {/* Description */}

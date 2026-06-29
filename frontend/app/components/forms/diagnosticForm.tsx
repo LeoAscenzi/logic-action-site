@@ -131,11 +131,8 @@ export default function DiagnosticForm() {
 						type="tel"
 						placeholder="(123) 456-7890"
 						className={inputCls}
-						{...register("phone", { validate: validatePhone })}
+						{...register("phone")}
 					/>
-					{errors.phone && (
-						<p className="text-red-500 text-xs mt-0.5">{errors.phone.message}</p>
-					)}
 				</div>
 
 				{serverError && (

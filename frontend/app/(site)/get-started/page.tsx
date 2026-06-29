@@ -3,6 +3,7 @@ import HeroSection from "@/app/components/pageSections/HeroSection";
 import Section from "@/app/components/section";
 import PriceCard from "@/app/components/cards/priceCard";
 import DiagnosticForm from "@/app/components/forms/diagnosticForm";
+import CalendlyEmbed from "@/app/components/CalendlyEmbed";
 
 interface ServiceSectionProps {
 	id:          string;
@@ -69,33 +70,28 @@ export default function GetStartedPage() {
 			/>
 
 			<ServiceSection
+				id="consultation"
+				variant="white"
+				eyebrow="The Consultation"
+				title="Talk to an expert. No cost. No commitment."
+				description="Call us at (680) 215-7089 or book a time via Calendly to get started. After reviewing your student's diagnostic, one of our advisors will walk you through the results, what they mean for college readiness, and outline a personalized plan, no sales pressure, just clarity."
+				originalPrice="$199"
+				badge="Limited Time: Free Strategy Call for New Families"
+				ctaLabel="Use Calendly to Book Now!"
+				ctaHref="#consultation"
+				right={<CalendlyEmbed />}
+			/>
+
+			<ServiceSection
 				id="diagnostic"
 				variant="cream"
 				eyebrow="The Diagnostic"
 				title="Know exactly where your student stands."
 				description="Our diagnostic identifies precise strengths and gaps across every tested domain — giving us a data-driven starting point instead of guesswork. Most families spend months on generic prep before realizing their student needed a different approach. We skip that entirely."
-				originalPrice="$299"
-				ctaLabel="Claim Yours"
+				originalPrice="$199"
+				ctaLabel="Fill Out the form to Book Now!"
 				ctaHref="#diagnostic"
 				right={<DiagnosticForm />}
-			/>
-
-			<ServiceSection
-				id="consultation"
-				variant="white"
-				eyebrow="The Consultation"
-				title="Talk to an expert. No cost. No commitment."
-				description="After reviewing your student's diagnostic, one of our advisors walks you through what we found, what it means for college readiness, and exactly what a personalized plan would look like. No sales pressure — just clarity."
-				originalPrice="$199"
-				badge="Limited Time: Free Strategy Call for New Families"
-				ctaLabel="Book a Call"
-				ctaHref="#consultation"
-				right={
-					<div className="rounded-2xl border-2 border-dashed border-[var(--line)] bg-[var(--cream)] h-[420px] flex flex-col items-center justify-center gap-3">
-						<span className="text-3xl select-none">📅</span>
-						<p className="text-sm text-ink-soft">Booking calendar coming soon</p>
-					</div>
-				}
 			/>
 
 		</div>
