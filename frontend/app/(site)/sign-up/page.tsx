@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -11,6 +11,10 @@ const labelCls = "block text-xs font-semibold text-[var(--ink-soft)] mb-1.5 uppe
 interface InviteInfo { email: string; role: string }
 
 export default function SignUpPage() {
+	return <Suspense><SignUpForm /></Suspense>;
+}
+
+function SignUpForm() {
 	const params    = useSearchParams();
 	const router    = useRouter();
 	const token     = params.get("invite") ?? "";

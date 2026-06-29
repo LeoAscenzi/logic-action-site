@@ -498,6 +498,26 @@ async def list_event_registrations(
     return result.scalars().all()
 
 
+@router.delete("/events/{event_id}/registrations/{registration_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_event_registration(
+    event_id: int,
+    registration_id: int,
+    _: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(EventRegistration).where(
+            EventRegistration.id == registration_id,
+            EventRegistration.event_id == event_id,
+        )
+    )
+    reg = result.scalar_one_or_none()
+    if not reg:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registration not found")
+    await db.delete(reg)
+    await db.commit()
+
+
 # ── Invites ──────────────────────────────────────────────────────────────────
 
 @router.post("/invites", response_model=InviteOut, status_code=status.HTTP_201_CREATED)
