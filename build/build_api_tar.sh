@@ -1,14 +1,23 @@
 #!/usr/bin/env bash
 # Build the FastAPI image and export it as a tar for manual deployment.
-# Usage: ./build/build_api_tar.sh [tag]
-# Default tag: ivy-bridge-api-qa:latest
+# Usage:
+#   ./build/build_api_tar.sh            → ivy-bridge-api:latest  (prod)
+#   ./build/build_api_tar.sh qa         → ivy-bridge-api-qa:latest
+#   ./build/build_api_tar.sh my-tag:v2  → my-tag:v2
 set -e
 
 cd "$(dirname "$0")/.."  # run from project root
 
-IMAGE="${1:-ivy-bridge-api-qa:latest}"
-TARGETS_DIR="build/targets"
+ARG="${1:-}"
+if [[ "$ARG" == "qa" ]]; then
+    IMAGE="ivy-bridge-api-qa:latest"
+elif [[ -n "$ARG" ]]; then
+    IMAGE="$ARG"
+else
+    IMAGE="ivy-bridge-api:latest"
+fi
 
+TARGETS_DIR="build/targets"
 mkdir -p "$TARGETS_DIR"
 
 echo "==> Building $IMAGE from ./backend..."
@@ -25,15 +34,8 @@ echo "Done."
 echo "  Image : $IMAGE"
 echo "  Tar   : $TAR ($(du -sh "$TAR" | cut -f1))"
 echo ""
-echo "To load on the target host:"
-echo "  docker load < $TAR"
-echo "  docker run -d --name api -p 8000:8000 \\"
-echo "    -e POSTGRES_HOST=<rds-endpoint> \\"
-echo "    -e POSTGRES_PORT=5432 \\"
-echo "    -e POSTGRES_USER=<user> \\"
-echo "    -e POSTGRES_PASSWORD=<password> \\"
-echo "    -e POSTGRES_DB=logicaction \\"
-echo "    -e SECRET_KEY=<key> \\"
-echo "    -e ALLOWED_ORIGINS=<origins> \\"
-echo "    -e ENVIRONMENT=qa \\"
-echo "    $IMAGE"
+echo "To deploy:"
+echo "  scp -i ~/.ssh/<key>.pem $TAR ec2-user@<ip>:~/"
+echo "  # then on EC2:"
+echo "  docker load < ~/$SAFE_NAME.tar"
+echo "  docker compose -f ~/docker-compose.prod.yml up -d --no-deps api"

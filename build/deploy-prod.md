@@ -96,9 +96,29 @@ Trigger a redeploy of both projects after adding `NEXT_PUBLIC_*` vars (baked at 
 
 ---
 
-## Step 6 — EC2: Create `backend/.env`
+## Step 6 — EC2: Copy config files and create `.env`
 
-SSH into EC2 and create `/home/ec2-user/logic-action-site/backend/.env`:
+The repo never needs to live on EC2. You only need three things there: the compose file, the nginx config, and the env file.
+
+### From your local machine (one-time)
+
+```bash
+# Copy the compose and nginx config
+scp -i ~/.ssh/<key>.pem docker-compose.prod.yml          ec2-user@<ec2-ip>:~/
+scp -i ~/.ssh/<key>.pem nginx/nginx.conf                 ec2-user@<ec2-ip>:~/nginx/nginx.conf
+
+# Make the cert directory certbot will write into
+ssh -i ~/.ssh/<key>.pem ec2-user@<ec2-ip> "mkdir -p ~/certbot/conf ~/backend"
+```
+
+### On EC2: create `~/backend/.env`
+
+```bash
+ssh -i ~/.ssh/<key>.pem ec2-user@<ec2-ip>
+nano ~/backend/.env
+```
+
+Paste and fill in:
 
 ```bash
 DATABASE_URL=postgresql+asyncpg://<user>:<password>@<rds-endpoint>:5432/logicaction?ssl=require
@@ -124,49 +144,55 @@ AWS_ACCESS_KEY_ID=<from Step 4>
 AWS_SECRET_ACCESS_KEY=<from Step 4>
 ```
 
+Your EC2 home directory should now look like:
+```
+~/
+  docker-compose.prod.yml
+  nginx/
+    nginx.conf
+  certbot/
+    conf/         ← certbot writes certs here
+  backend/
+    .env
+```
+
 ---
 
 ## Step 7 — SSL Certificates (one-time)
 
-DNS must be propagated before running certbot (test with `dig api.ivybridgesociety.com` — should return EC2 IP).
+DNS must be propagated before running certbot. Verify first:
+```bash
+dig +short api.ivybridgesociety.com      # should return your EC2 IP
+dig +short metabase.ivybridgesociety.com # same
+```
 
-On EC2, from the repo root:
+Certbot standalone mode spins up its own temporary HTTP server on port 80 — no nginx, no repo needed. Make sure nothing is already running on port 80.
 
 ```bash
-# 1. Start nginx with the bootstrap config (HTTP only)
-docker compose -f docker-compose.prod.yml run --rm \
-  -v $(pwd)/nginx/nginx-bootstrap.conf:/etc/nginx/nginx.conf:ro \
-  nginx nginx -g "daemon off;" &
-# (or: copy nginx-bootstrap.conf over nginx.conf temporarily)
+# Create the cert directory
+mkdir -p ~/certbot/conf
 
-# Simpler: just start nginx directly for the acme challenge
-docker run -d --name nginx-bootstrap \
-  -p 80:80 \
-  -v $(pwd)/nginx/nginx-bootstrap.conf:/etc/nginx/nginx.conf:ro \
-  -v $(pwd)/certbot/www:/var/www/certbot:ro \
-  nginx:alpine
-
-# 2. Obtain certs
-docker compose -f docker-compose.prod.yml run --rm certbot certonly \
-  --webroot -w /var/www/certbot \
+# Obtain certs for both subdomains in one shot (they become SANs on one certificate)
+docker run --rm -p 80:80 \
+  -v ~/certbot/conf:/etc/letsencrypt \
+  certbot/certbot certonly \
+  --standalone \
   -d api.ivybridgesociety.com \
   -d metabase.ivybridgesociety.com \
   --email leo.ascenzi@gmail.com \
   --agree-tos --no-eff-email
-
-# 3. Stop bootstrap nginx
-docker stop nginx-bootstrap && docker rm nginx-bootstrap
-
-# 4. Start everything with SSL
-docker compose -f docker-compose.prod.yml up -d
 ```
 
+Certs land at `~/certbot/conf/live/api.ivybridgesociety.com/`. Both subdomains are covered — nginx.conf already points the metabase server block at the same path.
+
 ### Auto-renew (add to crontab on EC2)
+
+Renewal needs port 80 free, so stop nginx first:
 ```bash
 crontab -e
 ```
 ```
-0 3 * * * docker compose -f /home/ec2-user/logic-action-site/docker-compose.prod.yml run --rm certbot renew --quiet && docker compose -f /home/ec2-user/logic-action-site/docker-compose.prod.yml restart nginx
+0 3 1 * * docker stop $(docker ps -q --filter name=nginx) ; docker run --rm -p 80:80 -v ~/certbot/conf:/etc/letsencrypt certbot/certbot renew --quiet ; docker compose -f ~/docker-compose.prod.yml start nginx
 ```
 
 ---

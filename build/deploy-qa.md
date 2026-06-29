@@ -85,7 +85,7 @@ The frontend proxies all `/api/*` calls server-side to the EC2 backend, so the b
 
 ## Step 4 — Build and package the image
 
-On your local machine from the project root:
+On your local machine:
 
 ```bash
 ./build/build_api_tar.sh
