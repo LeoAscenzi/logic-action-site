@@ -1,0 +1,22 @@
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "9080:80"
+      - "9081:8001"
+    volumes:
+      - ./nginx/nginx-local.conf:/etc/nginx/nginx.conf:ro
+
+  metabase:
+    image: metabase/metabase:latest
+    expose:
+      - "3000"
+    volumes:
+      - metabase_data:/metabase-data
+    environment:
+      MB_DB_FILE: /metabase-data/metabase.db
+      MB_ANALYTICS_TRACKING: "false"
+      MB_SITE_NAME: "Ivy Bridge"
+
+volumes:
+  metabase_data:

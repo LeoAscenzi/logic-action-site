@@ -1,0 +1,5 @@
+# Ignore actual cert files — certbot writes these on EC2
+conf/*
+!conf/.gitkeep
+www/*
+!www/.gitkeep

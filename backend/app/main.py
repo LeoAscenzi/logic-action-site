@@ -12,7 +12,7 @@ app = FastAPI(title="Logic Action API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS.split(","),
-    allow_origin_regex=r"https://logic-action-site[\w-]*\.vercel\.app",
+    allow_origin_regex=r"https://(logic-action-site[\w-]*\.vercel\.app|(www|dashboard)\.ivybridgesociety\.com)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
