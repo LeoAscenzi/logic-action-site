@@ -38,6 +38,7 @@ class UserOut(BaseModel):
     lname: str
     email: str
     role: UserRole
+    is_active: bool = True
     avatar_url: Optional[str] = None
     email_grades: bool = True
     email_announcements: bool = True
@@ -188,15 +189,6 @@ class StudentDetailOut(BaseModel):
     parent_lname: Optional[str]
     enrolled_classes: list[ClassOut]
     exam_count: int
-
-
-# Teachers
-class TeacherCreate(BaseModel):
-    username: str
-    fname: str
-    lname: str
-    email: str
-    password: str
 
 
 # Homework

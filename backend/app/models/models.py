@@ -61,6 +61,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(256), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(256), nullable=False)
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true", nullable=False)
     avatar_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     email_grades: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true", nullable=False)
     email_announcements: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true", nullable=False)

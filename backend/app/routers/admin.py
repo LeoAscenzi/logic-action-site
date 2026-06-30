@@ -2,11 +2,11 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, status
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 
-from app.core.security import create_invite_token, hash_password
+from app.core.security import create_invite_token
 from app.db.session import get_db
-from app.models.models import EventRegistration, Invite, InvoiceStatus, User, UserRole
+from app.models.models import EventRegistration, Invite, InvoiceStatus, RefreshToken, User, UserRole
 from app.routers.deps import require_admin
 from app.schemas.schemas import (
     AttendanceCreate,
@@ -40,7 +40,6 @@ from app.schemas.schemas import (
     StudentCreate,
     StudentDetailOut,
     StudentOut,
-    TeacherCreate,
     UploadOut,
     UserOut,
 )
@@ -210,34 +209,6 @@ async def bulk_delete_classes(
     await svc.delete_classes(body.ids)
 
 
-@router.post("/create-teacher", response_model=UserOut, status_code=status.HTTP_201_CREATED)
-async def create_teacher(
-    body: TeacherCreate,
-    _: User = Depends(require_admin),
-    db: AsyncSession = Depends(get_db),
-):
-    existing = await db.execute(
-        select(User).where((User.username == body.username) | (User.email == body.email))
-    )
-    if existing.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Username or email already registered",
-        )
-    user = User(
-        username=body.username,
-        fname=body.fname,
-        lname=body.lname,
-        email=body.email,
-        password=hash_password(body.password),
-        role=UserRole.teacher,
-    )
-    db.add(user)
-    await db.commit()
-    await db.refresh(user)
-    return user
-
-
 @router.get("/teachers", response_model=list[UserOut])
 async def list_teachers(
     _: User = Depends(require_admin),
@@ -247,18 +218,45 @@ async def list_teachers(
     return result.scalars().all()
 
 
-@router.delete("/delete-teacher/{teacher_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_teacher(
-    teacher_id: int,
+@router.post("/users/{user_id}/deactivate", response_model=UserOut)
+async def deactivate_user(
+    user_id: int,
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    if user_id == admin.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot deactivate your own account")
+    result = await db.execute(select(User).where(User.id == user_id))
+    target = result.scalar_one_or_none()
+    if not target:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    if target.role == UserRole.admin:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin accounts cannot be deactivated")
+
+    target.is_active = False
+    # Revoke all refresh tokens so the user is locked out immediately.
+    await db.execute(
+        update(RefreshToken).where(RefreshToken.user_id == user_id).values(is_valid=False)
+    )
+    await db.commit()
+    await db.refresh(target)
+    return target
+
+
+@router.post("/users/{user_id}/reactivate", response_model=UserOut)
+async def reactivate_user(
+    user_id: int,
     _: User = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(User).where(User.id == teacher_id, User.role == UserRole.teacher))
-    teacher = result.scalar_one_or_none()
-    if not teacher:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teacher not found")
-    await db.delete(teacher)
+    result = await db.execute(select(User).where(User.id == user_id))
+    target = result.scalar_one_or_none()
+    if not target:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    target.is_active = True
     await db.commit()
+    await db.refresh(target)
+    return target
 
 
 @router.get("/students/{student_id}", response_model=StudentDetailOut)

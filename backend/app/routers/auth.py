@@ -25,6 +25,7 @@ from app.schemas.schemas import (
     UserOut,
     UserUpdate,
 )
+from app.services.storage import delete_file as storage_delete
 from app.services.storage import upload_file as storage_upload
 
 router = APIRouter(tags=["auth"])
@@ -70,6 +71,17 @@ async def upload(
 ):
     url = await storage_upload(file, str(request.base_url))
     return UploadOut(url=url)
+
+
+@router.delete("/me/avatar", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_my_avatar(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if user.avatar_url:
+        storage_delete(user.avatar_url)
+        user.avatar_url = None
+        await db.commit()
 
 
 @router.get("/invite/validate", response_model=InviteValidate)
@@ -155,6 +167,9 @@ async def login(
 
     if not user or not verify_password(body.password, user.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+
+    if not user.is_active:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account Disabled")
 
     access_token = create_access_token(str(user.id), user.role.value)
     refresh_token_str = create_refresh_token(str(user.id))
