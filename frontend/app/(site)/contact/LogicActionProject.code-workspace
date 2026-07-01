@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../../.."
+		},
+		{
+			"path": "../../../../../logic-action-dashboard"
+		},
+		{
+			"path": "../../../../../logic-action-app"
+		}
+	],
+	"settings": {}
+}

@@ -10,8 +10,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", weight: ["40
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", weight: ["400", "600", "800"] });
 
 export const metadata: Metadata = {
-  title: "Project Logic Action",
-  description: "Project Logic Action description",
+  title: "Ivy Bridge Society",
+  description: "NYC's premier SAT, ACT & college-prep community. Expert mentors, personalized growth plans, and measurable results — not promises",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
