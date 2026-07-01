@@ -1,7 +1,21 @@
 import Image from "next/image";
+import type { Metadata } from "next";
 import Section from "@/app/components/section";
 import HeroSection from "@/app/components/pageSections/HeroSection";
 import RsvpForm from "@/app/components/events/RsvpForm";
+
+export const metadata: Metadata = {
+	title: "Events",
+	description:
+		"Upcoming Ivy Bridge Society events — talks, SAT & ACT workshops, college info nights, and parent meetups.",
+	alternates: { canonical: "/events" },
+	openGraph: {
+		title: "Events · Ivy Bridge Society",
+		description:
+			"Upcoming Ivy Bridge Society events — talks, SAT & ACT workshops, college info nights, and parent meetups.",
+		url: "/events",
+	},
+};
 
 const EVENT_TYPES = [
 	{ emoji: "🎓", label: "Talks by top school graduates"     },
